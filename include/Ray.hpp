@@ -1,0 +1,18 @@
+#pragma once
+
+#include "Vec4.hpp"
+namespace RTCE {
+
+class Ray {
+private:
+	Vec4 _origin;
+	Vec4 _direction;
+
+public:
+	Ray() : _origin(MakePoint()), _direction(MakeDir()) {}
+	Ray(const Vec4& origin, const Vec4& direction) : _origin(origin), _direction(direction) {}
+	Vec4 origin() const;
+	Vec4 direction() const;
+};
+
+}// namespace RTCE
