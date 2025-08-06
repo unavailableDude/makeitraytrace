@@ -12,6 +12,15 @@ const int SCRW = 640;
 const int SCRH = 480;
 
 
+using RTCE::Vec4;
+
+
+void TickProjectile(Vec4& position, Vec4& velocity, Vec4& influenceAcceleration, float deltaTime) {
+	position = position + velocity * deltaTime;
+	velocity = velocity + (influenceAcceleration * deltaTime);
+}
+
+
 int main(int argc, char* argv[]) {
 	// initialize SDL
 	if(SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -30,12 +39,9 @@ int main(int argc, char* argv[]) {
 		return -1;
 	}
 
-	RTCE::Vec4 CameraPos = RTCE::MakePoint(RTCE::Vec4(0.0f, 0.0f, 0.0f));
-	RTCE::Vec4 CameraDir = RTCE::MakeDir(RTCE::Vec4(0.0f, 0.0f, -1.0f));
-	float CameraFov = 90.0f;// Field of view in degrees
-	float aspectRatio = static_cast<float>(SCRW) / static_cast<float>(SCRH);
-	std::vector<RTCE::Ray> rays(SCRW * SCRH, RTCE::Ray());
-	std::vector<RTCE::Vec4> frameBuffer(SCRW * SCRH, RTCE::Vec4(0.0f, 0.0f, 0.0f, 0.0f));// rgba
+	Vec4 projectile1Position = RTCE::MakePoint(Vec4(0.0f, 0.0f, 0.0f));
+	Vec4 projectile1Velocity = RTCE::MakeDir(Vec4(50.0f, 50.0f, 0.0f));
+	Vec4 influenceAcceleration = RTCE::MakeDir(Vec4(-4.0f, -9.81f, 0.0f));// wind effects x, gravity effects y
 
 	SDL_Event event;
 	bool running = true;
@@ -58,15 +64,18 @@ int main(int argc, char* argv[]) {
 			}
 		}
 
+		TickProjectile(projectile1Position, projectile1Velocity, influenceAcceleration, 0.0166f);
+
 		// draw array
 		SDL_SetRenderDrawColor(renderer1, 255, 255, 255, 255);
 
+		SDL_RenderDrawPoint(renderer1, projectile1Position._x, SCRH - projectile1Position._y);
+
 		SDL_RenderPresent(renderer1);
 		SDL_Delay(16);
-		SDL_SetRenderDrawColor(renderer1, 0, 0, 0, 255);
-		SDL_RenderClear(renderer1);
+		// SDL_SetRenderDrawColor(renderer1, 0, 0, 0, 255);
+		// SDL_RenderClear(renderer1);
 	}
-
 	SDL_Quit();
 
 	return 0;

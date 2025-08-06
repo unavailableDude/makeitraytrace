@@ -1,5 +1,9 @@
 #include "../include/Vec4.hpp"
+
+
 #include <cmath>
+#include <iostream>
+
 namespace RTCE {
 
 
