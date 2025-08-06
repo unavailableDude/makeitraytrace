@@ -1,1 +1,15 @@
 taking on the ray tracer challenge by Jamis Buck
+
+how to build on windows:
+1- make a build directory in the root directory, and a tests directory in the build directory:
+mkdir build
+cd build
+mkdir tests
+
+2- run cmake while in the build directory:
+cmake --fresh -G "MinGW Makefiles" ..
+
+3- run the generated makefile in the build directory:
+make
+
+4- enjoy!

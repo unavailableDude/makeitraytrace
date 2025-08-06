@@ -111,5 +111,49 @@ int main(int argc, char* argv[]) {
 	Vec4 zeroVec = MakeDir(Vec4(0.0f, 0.0f, 0.0f));
 	AssertFloatEqual(zeroVec.Magnitude(), 0.0f, eps, "Vec4 zero vector has magnitude 0");
 
+	// normalizing 4,0,0 gives 1,0,0
+	Vec4 vecToNormalize = MakeDir(Vec4(4.0f, 0.0f, 0.0f));
+	Vec4 normalizedVec = vecToNormalize.Normalize();
+	AssertEqual(normalizedVec, 1.0f, 0.0f, 0.0f, 0.0f, eps, "Vec4 normalization of (4,0,0) gives (1,0,0)");
+
+	// normalizing 1,2,3 gives 1/sqrt(14), 2/sqrt(14), 3/sqrt(14)
+	Vec4 vecToNormalize2 = MakeDir(Vec4(1.0f, 2.0f, 3.0f));
+	Vec4 normalizedVec2 = vecToNormalize2.Normalize();
+	AssertEqual(normalizedVec2,
+	            1.0f / sqrtf(14.0f),
+	            2.0f / sqrtf(14.0f),
+	            3.0f / sqrtf(14.0f),
+	            0.0f,
+	            eps,
+	            "Vec4 normalization of (1,2,3) gives (1/sqrt(14), 2/sqrt(14), 3/sqrt(14))");
+
+	// normalizing a vector gives a vector of magnitude 1
+	AssertFloatEqual(normalizedVec2.Magnitude(), 1.0f, eps, "Vec4 normalization gives a vector of magnitude 1");
+
+	// chaining Normalize and Magnitude works
+	Vec4 vecToChain = MakeDir(Vec4(3.0f, 4.0f, 0.0f));
+	AssertFloatEqual(vecToChain.Normalize().Magnitude(), 1.0f, eps, "Vec4 chaining Normalize and Magnitude works");
+
+	// dot product of 1,2,3,0 and 2,3,4,0 is 20
+	Vec4 vecToDot1 = MakeDir(Vec4(1.0f, 2.0f, 3.0f));
+	Vec4 vecToDot2 = MakeDir(Vec4(2.0f, 3.0f, 4.0f));
+	float dotResult = Dot(vecToDot1, vecToDot2);
+	AssertFloatEqual(dotResult, 20.0f, eps, "dot(1,2,3,0) and (2,3,4,0) = 20");
+
+	// dot product of 1,2,3,0 and 0,0,0,0 is 0
+	Vec4 vecToDot3 = MakeDir(Vec4(0.0f, 0.0f, 0.0f));
+	float dotResult2 = Dot(vecToDot1, vecToDot3);
+	AssertFloatEqual(dotResult2, 0.0f, eps, "dot(1,2,3,0) and (0,0,0,0) = 0");
+
+	// cross product of 1,2,3 and 2,3,4 is (-1,2,-1,0)
+	// cross product of 2,3,4 and 1,2,3 is (1,-2,1,0)
+	// must be vectors, ie w = 0
+	Vec4 vecToCross1 = MakeDir(Vec4(1.0f, 2.0f, 3.0f));
+	Vec4 vecToCross2 = MakeDir(Vec4(2.0f, 3.0f, 4.0f));
+	Vec4 crossResult1 = Cross(vecToCross1, vecToCross2);
+	Vec4 crossResult2 = Cross(vecToCross2, vecToCross1);
+	AssertEqual(crossResult1, -1.0f, 2.0f, -1.0f, 0.0f, eps, "cross(1,2,3) and (2,3,4) = (-1,2,-1,0)");
+	AssertEqual(crossResult2, 1.0f, -2.0f, 1.0f, 0.0f, eps, "cross(2,3,4) and (1,2,3) = (1,-2,1,0)");
+
 	return 0;
 }

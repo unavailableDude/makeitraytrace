@@ -20,7 +20,12 @@ struct Vec4 {
 	Vec4 operator/(float scalar) const;
 
 	float Magnitude() const;
+
+	Vec4& Normalize();
 };
+
+float Dot(Vec4 a, Vec4 b);
+Vec4 Cross(Vec4 a, Vec4 b);
 
 Vec4 MakePoint(Vec4 v = Vec4(0.0f, 0.0f, 0.0f));
 Vec4 MakeDir(Vec4 v = Vec4(0.0f, 0.0f, -1.0f));
