@@ -14,5 +14,24 @@ float Color4::g() const { return G(); }
 float Color4::b() const { return B(); }
 float Color4::a() const { return A(); }
 
+Color4 Color4::operator+(const Color4& other) const {
+	return Color4(r() + other.r(), g() + other.g(), b() + other.b(), a() + other.a());
+}
+
+Color4 Color4::operator-(const Color4& other) const {
+	return Color4(r() - other.r(), g() - other.g(), b() - other.b(), a() - other.a());
+}
+
+Color4 Color4::operator*(const Color4& other) const {
+	return Color4(r() * other.r(), g() * other.g(), b() * other.b(), a() * other.a());
+}
+
+Color4 Color4::operator*(float scalar) const { return Color4(r() * scalar, g() * scalar, b() * scalar, a() * scalar); }
+
+Color4 Color4::operator/(const Color4& other) const {
+	return Color4(r() / other.r(), g() / other.g(), b() / other.b(), a() / other.a());
+}
+
+Color4 Color4::operator/(float scalar) const { return Color4(r() / scalar, g() / scalar, b() / scalar, a() / scalar); }
 
 }// namespace RTCE

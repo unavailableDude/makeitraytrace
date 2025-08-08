@@ -19,6 +19,13 @@ public:
 	float b() const;
 	float a() const;
 
+	Color4 operator+(const Color4& other) const;
+	Color4 operator-(const Color4& other) const;
+	Color4 operator*(const Color4& other) const;// hadamard product
+	Color4 operator*(float scalar) const;
+	Color4 operator/(const Color4& other) const;// hadamard product
+	Color4 operator/(float scalar) const;
+
 private:
 	Vec4 _rgbaComponents;
 };

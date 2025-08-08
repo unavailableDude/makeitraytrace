@@ -14,7 +14,7 @@ using namespace RTCE;
 
 // returns true for equal, takes epsilon into account
 bool AssertEqual(const Color4& c, float r, float g, float b, float a, float eps, const char* title = "") {
-	if(c.r() == r && c.g() == g && c.b() == b && c.a() == a) {
+	if((fabs(c.r() - r) < eps) && (fabs(c.g() - g) < eps) && (fabs(c.b() - b) < eps) && (fabs(c.a() - a) < eps)) {
 		std::cout << GREEN << "passed! " << title << RESET << std::endl;
 		return true;
 	}
@@ -53,6 +53,16 @@ int main(int argc, char* argv[]) {
 	AssertEqual(color4, 0.5, 0.0, 0.0, 0.0, eps, "Color4 init with (0.5) returns Color(0.5, 0, 0, 0)");
 	AssertEqual(color5, 0.0, 0.0, 0.0, 0.0, eps, "Color4 init with no arguments returns Color(0, 0, 0, 0)");
 
+	// test for the operations + - * /
+	Color4 colorA = Color4(0.9f, 0.6f, 0.75f, 0.4f);
+	Color4 colorB = Color4(0.7f, 0.1f, 0.25f, 0.8f);
+
+	AssertEqual(colorA + colorB, 1.6f, 0.7f, 1.0f, 1.2f, eps, "Color4 addition");
+	AssertEqual(colorA - colorB, 0.2f, 0.5f, 0.5f, -0.4f, eps, "Color4 subtraction");
+	AssertEqual(colorA * colorB, 0.63f, 0.06f, 0.1875f, 0.32f, eps, "Color4 hadamard product");
+	AssertEqual(colorA * 2.0f, 1.8f, 1.2f, 1.5f, 0.8f, eps, "Color4 scalar multiplication");
+	AssertEqual(colorA / colorB, 1.285714f, 6.0f, 3.0f, 0.5f, eps, "Color4 hadamard division");
+	AssertEqual(colorA / 2.0f, 0.45f, 0.3f, 0.375f, 0.2f, eps, "Color4 scalar division");
 
 	return 0;
 }
