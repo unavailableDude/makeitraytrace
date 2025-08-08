@@ -43,6 +43,10 @@ int main(int argc, char* argv[]) {
 	Vec4 projectile1Velocity = RTCE::MakeDir(Vec4(50.0f, 50.0f, 0.0f));
 	Vec4 influenceAcceleration = RTCE::MakeDir(Vec4(-4.0f, -9.81f, 0.0f));// wind effects x, gravity effects y
 
+	// random garbage you will see, unless with black you clear the scree...n
+	SDL_SetRenderDrawColor(renderer1, 0, 0, 0, 255);
+	SDL_RenderClear(renderer1);
+
 	SDL_Event event;
 	bool running = true;
 	while(running) {
