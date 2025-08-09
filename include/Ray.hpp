@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Vec4.hpp"
-namespace RTCE {
+namespace MIRT {
 
 class Ray {
 private:
@@ -15,4 +15,4 @@ public:
 	Vec4 direction() const;
 };
 
-}// namespace RTCE
+}// namespace MIRT

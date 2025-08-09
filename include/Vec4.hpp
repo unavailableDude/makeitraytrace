@@ -1,6 +1,6 @@
 #pragma once
 
-namespace RTCE {
+namespace MIRT {
 
 // w = 1 for positions, w = 0 for directions
 struct Vec4 {
@@ -8,7 +8,7 @@ struct Vec4 {
 	float _y;
 	float _z;
 	float _w;
-	static constexpr float epsilon = 0.00001f;
+	static constexpr float s_epsilon = 0.00001f;
 
 	Vec4(float x = 0.0f, float y = 0.0f, float z = 0.0f, float w = 1.0f) : _x(x), _y(y), _z(z), _w(w) {}
 
@@ -32,4 +32,4 @@ Vec4 MakeDir(Vec4 v = Vec4(0.0f, 0.0f, -1.0f));
 
 const bool IsVec4Equal(Vec4 a, Vec4 b);
 
-}// namespace RTCE
+}// namespace MIRT

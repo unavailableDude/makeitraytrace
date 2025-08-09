@@ -3,7 +3,7 @@
 #include <cmath>
 
 #include "../include/Vec4.hpp"
-using namespace RTCE;
+using namespace MIRT;
 
 // ANSI color codes
 #define GREEN "\033[32m"
@@ -11,7 +11,7 @@ using namespace RTCE;
 #define RESET "\033[0m"
 
 
-// returns true for equal, takes epsilon into account
+// returns true for equal, takes s_epsilon into account
 bool AssertEqual(const Vec4& a, float x, float y, float z, float w, float eps, const char* title = "") {
 	if((fabs(a._x - x) < eps) && (fabs(a._y - y) < eps) && (fabs(a._z - z) < eps) && (fabs(a._w - w) < eps)) {
 		std::cout << GREEN << "passed! " << title << RESET << std::endl;
@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
 	Vec4 dir1 = MakeDir(Vec4(4.0f, -4.0f, 3.0f));
 	Vec4 dir2 = MakeDir(Vec4(1.5f, 2.2f, -1.0f));
 
-	float eps = Vec4::epsilon;// epsilon for floating point comparisons
+	float eps = Vec4::s_epsilon;// s_epsilon for floating point comparisons
 
 	// calling Vec4 gives correct values
 	AssertEqual(a1, 4.3f, -4.2f, 3.1f, 1.0f, eps, "Vec4 Initialization");

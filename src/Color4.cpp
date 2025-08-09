@@ -1,7 +1,8 @@
 #include "../include/Color4.hpp"
 
+#include <cmath>
 
-namespace RTCE {
+namespace MIRT {
 
 
 float Color4::R() const { return _rgbaComponents._x; }
@@ -34,4 +35,16 @@ Color4 Color4::operator/(const Color4& other) const {
 
 Color4 Color4::operator/(float scalar) const { return Color4(r() / scalar, g() / scalar, b() / scalar, a() / scalar); }
 
-}// namespace RTCE
+bool Color4::operator==(const Color4& other) const {
+	return (fabs(r() - other.r()) < Vec4::s_epsilon) && (fabs(g() - other.g()) < Vec4::s_epsilon) &&
+	       (fabs(b() - other.b()) < Vec4::s_epsilon) && (fabs(a() - other.a()) < Vec4::s_epsilon);
+}
+
+bool Color4::operator!=(const Color4& other) const { return !(*this == other); }
+
+std::string ToString(const Color4& color) {
+	return "Color4(" + std::to_string(color.r()) + ", " + std::to_string(color.g()) + ", " + std::to_string(color.b()) + ", " +
+	       std::to_string(color.a()) + ")";
+}
+
+}// namespace MIRT

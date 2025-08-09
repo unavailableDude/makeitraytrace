@@ -3,7 +3,7 @@
 
 #include "../include/SDL2/SDL.h"
 
-// RTCE
+// MIRT
 #include "../include/Vec4.hpp"
 #include "../include/Ray.hpp"
 
@@ -12,7 +12,7 @@ const int SCRW = 640;
 const int SCRH = 480;
 
 
-using RTCE::Vec4;
+using MIRT::Vec4;
 
 
 void TickProjectile(Vec4& position, Vec4& velocity, Vec4& influenceAcceleration, float deltaTime) {
@@ -39,9 +39,9 @@ int main(int argc, char* argv[]) {
 		return -1;
 	}
 
-	Vec4 projectile1Position = RTCE::MakePoint(Vec4(0.0f, 0.0f, 0.0f));
-	Vec4 projectile1Velocity = RTCE::MakeDir(Vec4(50.0f, 50.0f, 0.0f));
-	Vec4 influenceAcceleration = RTCE::MakeDir(Vec4(-4.0f, -9.81f, 0.0f));// wind effects x, gravity effects y
+	Vec4 projectile1Position = MIRT::MakePoint(Vec4(0.0f, 0.0f, 0.0f));
+	Vec4 projectile1Velocity = MIRT::MakeDir(Vec4(50.0f, 50.0f, 0.0f));
+	Vec4 influenceAcceleration = MIRT::MakeDir(Vec4(-4.0f, -9.81f, 0.0f));// wind effects x, gravity effects y
 
 	// random garbage you will see, unless with black you clear the scree...n
 	SDL_SetRenderDrawColor(renderer1, 0, 0, 0, 255);

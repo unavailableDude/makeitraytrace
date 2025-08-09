@@ -4,7 +4,7 @@
 
 #include "../include/Color4.hpp"
 #include "../include/Vec4.hpp"
-using namespace RTCE;
+using namespace MIRT;
 
 // ANSI color codes
 #define GREEN "\033[32m"
@@ -12,7 +12,7 @@ using namespace RTCE;
 #define RESET "\033[0m"
 
 
-// returns true for equal, takes epsilon into account
+// returns true for equal, takes s_epsilon into account
 bool AssertEqual(const Color4& c, float r, float g, float b, float a, float eps, const char* title = "") {
 	if((fabs(c.r() - r) < eps) && (fabs(c.g() - g) < eps) && (fabs(c.b() - b) < eps) && (fabs(c.a() - a) < eps)) {
 		std::cout << GREEN << "passed! " << title << RESET << std::endl;
@@ -33,7 +33,7 @@ bool AssertFloatEqual(float a, float b, float eps, const char* title = "") {
 }
 
 int main(int argc, char* argv[]) {
-	float eps = Vec4::epsilon;
+	float eps = Vec4::s_epsilon;
 
 	// test if color with specified values is created correctly
 	Color4 color1 = Color4(0.5f, 0.25f, 0.75f, 1.0f);

@@ -1,7 +1,12 @@
+#pragma once
+
+
+#include <string>
+
 #include "Vec4.hpp"
 
 
-namespace RTCE {
+namespace MIRT {
 
 
 class Color4 {
@@ -26,8 +31,13 @@ public:
 	Color4 operator/(const Color4& other) const;// hadamard product
 	Color4 operator/(float scalar) const;
 
+	bool operator==(const Color4& other) const;
+	bool operator!=(const Color4& other) const;
+
 private:
 	Vec4 _rgbaComponents;
 };
 
-}// namespace RTCE
+std::string ToString(const Color4& color);
+
+}// namespace MIRT

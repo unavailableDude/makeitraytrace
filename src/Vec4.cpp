@@ -4,7 +4,7 @@
 #include <cmath>
 #include <iostream>
 
-namespace RTCE {
+namespace MIRT {
 
 
 Vec4 Vec4::operator+(const Vec4& other) const { return Vec4(_x + other._x, _y + other._y, _z + other._z, _w + other._w); }
@@ -43,10 +43,10 @@ Vec4 MakeDir(Vec4 v) {
 	return Vec4(v._x, v._y, v._z, 0.0f);// w = 0 for directions
 }
 
-// take epsilon into account
+// take s_epsilon into account
 const bool IsVec4Equal(Vec4 a, Vec4 b) {
-	return ((fabs(a._x - b._x) < Vec4::epsilon) && (fabs(a._y - b._y) < Vec4::epsilon) &&
-	        (fabs(a._z - b._z) < Vec4::epsilon) && (fabs(a._w - b._w) < Vec4::epsilon));
+	return ((fabs(a._x - b._x) < Vec4::s_epsilon) && (fabs(a._y - b._y) < Vec4::s_epsilon) &&
+	        (fabs(a._z - b._z) < Vec4::s_epsilon) && (fabs(a._w - b._w) < Vec4::s_epsilon));
 }
 
-}// namespace RTCE
+}// namespace MIRT
