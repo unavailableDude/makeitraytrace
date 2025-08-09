@@ -39,9 +39,9 @@ void Canvas::SaveToPPM(const std::string& filename, const std::string& magicNumb
 	for(uint16_t y = 0; y < _height; ++y) {
 		for(uint16_t x = 0; x < _width; ++x) {
 			const Color4& pixel = GetPixel(x, y);
-			// casting to uint8_t to avoid weird values that produce wrong colors when loaded by LoadPPM
-			file << static_cast<uint8_t>(pixel.r() * 255) << " " << static_cast<uint8_t>(pixel.g() * 255) << " "
-			     << static_cast<uint8_t>(pixel.b() * 255) << " ";
+			// casting to uint16_t to avoid weird values that produce wrong colors when loaded by LoadPPM
+			file << static_cast<uint16_t>(pixel.r() * 255) << " " << static_cast<uint16_t>(pixel.g() * 255) << " "
+			     << static_cast<uint16_t>(pixel.b() * 255) << " ";
 		}
 		file << "\n";
 	}
@@ -73,7 +73,7 @@ Canvas& LoadPPM(const std::string& filename) {
 	Canvas* canvas = new Canvas(width, height);
 	for(uint16_t y = 0; y < height; ++y) {
 		for(uint16_t x = 0; x < width; ++x) {
-			uint8_t r, g, b;
+			uint16_t r, g, b;
 			file >> r >> g >> b;
 			canvas->SetPixel(x, y, Color4(r / 255.0f, g / 255.0f, b / 255.0f, 1.0f));
 		}
