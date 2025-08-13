@@ -2,6 +2,7 @@
 #include <vector>
 
 #include "../include/SDL2/SDL.h"
+#include "../include/glm/glm.hpp"
 
 // MIRT
 #include "../include/Vec4.hpp"

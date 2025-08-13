@@ -7,6 +7,8 @@ set(CMAKE_CXX_FLAGS "-Wall -O0 -g")
 # set path to SDL2 and get it
 set(SDL2_DIR ${CMAKE_CURRENT_LIST_DIR}/lib/SDL2/cmake/)
 find_package(SDL2 REQUIRED)
+set(glm_DIR ${CMAKE_CURRENT_LIST_DIR}/lib/glm/build/)
+find_package(glm CONFIG REQUIRED)
 
 # set source files for the library
 set(LIB_SOURCES src/Vec4.cpp src/Ray.cpp src/Color4.cpp src/Canvas.cpp)
@@ -17,7 +19,7 @@ target_include_directories(raytracer_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/inc
 
 # add target, and link libraries
 add_executable(raytracer src/main.cpp)
-target_link_libraries(raytracer raytracer_core SDL2::SDL2main SDL2::SDL2)
+target_link_libraries(raytracer raytracer_core SDL2::SDL2main SDL2::SDL2 glm::glm-header-only)
 target_include_directories(raytracer PRIVATE ${SDL2_INCLUDE_DIRS})
 
 
