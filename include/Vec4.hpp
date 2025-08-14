@@ -30,6 +30,6 @@ Vec4 Cross(Vec4 a, Vec4 b);
 Vec4 MakePoint(Vec4 v = Vec4(0.0f, 0.0f, 0.0f));
 Vec4 MakeDir(Vec4 v = Vec4(0.0f, 0.0f, -1.0f));
 
-const bool IsVec4Equal(Vec4 a, Vec4 b);
+const bool IsVec4Equal(Vec4 a, Vec4 b, float epsilon = Vec4::s_epsilon);
 
 }// namespace MIRT

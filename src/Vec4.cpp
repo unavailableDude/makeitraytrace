@@ -44,9 +44,9 @@ Vec4 MakeDir(Vec4 v) {
 }
 
 // take s_epsilon into account
-const bool IsVec4Equal(Vec4 a, Vec4 b) {
-	return ((fabs(a._x - b._x) < Vec4::s_epsilon) && (fabs(a._y - b._y) < Vec4::s_epsilon) &&
-	        (fabs(a._z - b._z) < Vec4::s_epsilon) && (fabs(a._w - b._w) < Vec4::s_epsilon));
+const bool IsVec4Equal(Vec4 a, Vec4 b, float epsilon) {
+	return ((fabs(a._x - b._x) < epsilon) && (fabs(a._y - b._y) < epsilon) && (fabs(a._z - b._z) < epsilon) &&
+	        (fabs(a._w - b._w) < epsilon));
 }
 
 }// namespace MIRT

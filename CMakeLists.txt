@@ -11,7 +11,7 @@ set(glm_DIR ${CMAKE_CURRENT_LIST_DIR}/lib/glm/build/)
 find_package(glm CONFIG REQUIRED)
 
 # set source files for the library
-set(LIB_SOURCES src/Vec4.cpp src/Ray.cpp src/Color4.cpp src/Canvas.cpp)
+set(LIB_SOURCES src/Vec4.cpp src/Ray.cpp src/Color4.cpp src/Canvas.cpp src/Sphere.cpp src/RayHit.cpp)
 
 # define library raytracer_core and add its sources, and include directories
 add_library(raytracer_core STATIC ${LIB_SOURCES})
