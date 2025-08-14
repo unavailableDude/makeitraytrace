@@ -11,8 +11,11 @@ private:
 public:
 	Ray() : _origin(MakePoint()), _direction(MakeDir()) {}
 	Ray(const Vec4& origin, const Vec4& direction) : _origin(origin), _direction(direction) {}
+
 	Vec4 origin() const;
 	Vec4 direction() const;
+
+	Vec4 Position(float t) const;
 };
 
 }// namespace MIRT
