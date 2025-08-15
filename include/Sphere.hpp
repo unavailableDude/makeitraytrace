@@ -16,7 +16,7 @@ public:
 	Vec4 Center() const;
 	float Radius() const;
 
-	RayHit Intersect(const Ray& ray);
+	std::vector<RayHit> Intersect(const Ray& ray);
 
 private:
 	Vec4 _center;

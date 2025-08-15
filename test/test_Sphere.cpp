@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cmath>
+#include <vector>
 
 #include "../include/Ray.hpp"
 #include "../include/Sphere.hpp"
@@ -40,8 +41,8 @@ int main() {
 
 	// this intersection should yield 2 points at (0, 0, -1) and (0, 0, 1), t1 = 4 & t2 = 6
 	Ray ray1 = Ray(MakePoint(Vec4(0.0f, 0.0f, -5.0f)), MakeDir(Vec4(0.0f, 0.0f, 1.0f)));
-	RayHit hit = sphere1.Intersect(ray1);
-	if(CheckHitDistance(hit, 4.0f) && hit.Object() == &sphere1) {
+	std::vector<RayHit> hits = sphere1.Intersect(ray1);
+	if(CheckHitDistance(hits[0], 4.0f) && CheckHitDistance(hits[1], 6.0f)) {
 		std::cout << GREEN << "Passed! " << "Ray intersects the sphere at the correct distance." << RESET << std::endl;
 	} else {
 		std::cout << RED << "Failed! " << "Ray does not intersect the sphere at the correct distance." << RESET << std::endl;
@@ -49,8 +50,8 @@ int main() {
 
 	// this intersection should yield one point at (0, 1, 0)
 	Ray ray2 = Ray(MakePoint(Vec4(0.0f, 1.0f, -5.0f)), MakeDir(Vec4(0.0f, 0.0f, 1.0f)));
-	hit = sphere1.Intersect(ray2);
-	if(CheckHitDistance(hit, 5.0f) && hit.Object() == &sphere1) {
+	hits = sphere1.Intersect(ray2);
+	if(CheckHitDistance(hits[0], 5.0f)) {
 		std::cout << GREEN << "Passed! " << "Ray glances the sphere at the correct point." << RESET << std::endl;
 	} else {
 		std::cout << RED << "Failed! " << "Ray does not glances the sphere at the correct point." << RESET << std::endl;
@@ -58,8 +59,8 @@ int main() {
 
 	// this intersection should yield no points, as the ray misses the sphere
 	Ray ray3 = Ray(MakePoint(Vec4(2.0f, 2.0f, -5.0f)), MakeDir(Vec4(0.0f, 0.0f, 1.0f)));
-	hit = sphere1.Intersect(ray3);
-	if(CheckHitDistanceOver(hit, 1000000.0f)) {
+	hits = sphere1.Intersect(ray3);
+	if(hits.empty()) {
 		std::cout << GREEN << "Passed! " << "Ray misses the sphere as expected." << RESET << std::endl;
 	} else {
 		std::cout << RED << "Failed! " << "Ray should not intersect the sphere." << RESET << std::endl;
@@ -67,8 +68,8 @@ int main() {
 
 	// a ray inside the sphere still intersects at 2 points, t1 = -1, t2 = 1
 	Ray ray4 = Ray(MakePoint(Vec4(0.0f, 0.0f, 0.0f)), MakeDir(Vec4(0.0f, 0.0f, 1.0f)));
-	hit = sphere1.Intersect(ray4);
-	if(CheckHitDistance(hit, -1.0f) && hit.Object() == &sphere1) {
+	hits = sphere1.Intersect(ray4);
+	if(CheckHitDistance(hits[0], -1.0f) && CheckHitDistance(hits[1], 1.0f)) {
 		std::cout << GREEN << "Passed! "
 		          << "a Ray that is inside the sphere should intersect at 2 points, with -t1, +t2" << RESET << std::endl;
 	} else {
@@ -78,8 +79,8 @@ int main() {
 
 	// a ray infront of the sphere should still have 2 hit behind it with the sphere, both t are negative, t1 = -6, t2 = -4
 	Ray ray5 = Ray(MakePoint(Vec4(0.0f, 0.0f, 5.0f)), MakeDir(Vec4(0.0f, 0.0f, 1.0f)));
-	hit = sphere1.Intersect(ray5);
-	if(CheckHitDistance(hit, -6.0f) && hit.Object() == &sphere1) {
+	hits = sphere1.Intersect(ray5);
+	if(CheckHitDistance(hits[0], -6.0f) && CheckHitDistance(hits[1], -4.0f)) {
 		std::cout << GREEN << "Passed! "
 		          << "a Ray that is in front of the sphere should intersect at 2 points, both t are negative" << RESET
 		          << std::endl;
