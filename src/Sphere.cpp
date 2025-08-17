@@ -2,19 +2,21 @@
 
 #include "../include/Sphere.hpp"
 
+
 namespace MIRT {
 
-Vec4 Sphere::Center() const { return _center; }
-
-float Sphere::Radius() const { return _radius; }
+glm::mat4 Sphere::GetTransform() const { return _transform; }
+void Sphere::SetTransform(const glm::mat4& transform) { _transform = transform; }
 
 std::vector<RayHit> Sphere::Intersect(const Ray& ray) {
 	std::vector<RayHit> hits;
 
-	Vec4 oc = ray.origin() - Center();
-	float a = MIRT::Dot(ray.direction(), ray.direction());
-	float b = 2.0f * MIRT::Dot(oc, ray.direction());
-	float c = MIRT::Dot(oc, oc) - Radius() * Radius();
+	// apply the inverse of the sphere transformation to the ray, then calculate intersection.
+	Ray transformedRay = ApplyMatrixToRay(ray, glm::inverse(_transform));
+	Vec4 oc = transformedRay.origin() - MakeVec4(_transform[3]);
+	float a = MIRT::Dot(transformedRay.direction(), transformedRay.direction());
+	float b = 2.0f * MIRT::Dot(oc, transformedRay.direction());
+	float c = MIRT::Dot(oc, oc) - 1.0f;
 	float discriminant = b * b - 4 * a * c;
 
 	if(discriminant < 0) {

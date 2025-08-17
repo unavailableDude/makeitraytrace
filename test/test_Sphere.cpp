@@ -7,6 +7,10 @@
 #include "../include/Vec4.hpp"
 #include "../include/RayHit.hpp"
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/string_cast.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 
 // ANSI color codes
 #define GREEN "\033[32m"
@@ -16,13 +20,8 @@
 using namespace MIRT;
 
 
-bool CheckSpherePosition(const Sphere& sphere, const Vec4& point, float eps = Vec4::s_epsilon) {
-	return (fabs(sphere.Center()._x - point._x) < eps) && (fabs(sphere.Center()._y - point._y) < eps) &&
-	       (fabs(sphere.Center()._z - point._z) < eps);
-}
-
-bool CheckSphereRadius(const Sphere& sphere, float radius, float eps = Vec4::s_epsilon) {
-	return std::abs(sphere.Radius() - radius) < eps;
+bool CheckSphereInitialTransform(const Sphere& sphere, glm::mat4 expectedTransform) {
+	return sphere.GetTransform() == expectedTransform;
 }
 
 bool CheckHitDistance(const RayHit& hit, float distance, float eps = Vec4::s_epsilon) {
@@ -33,10 +32,10 @@ bool CheckHitDistanceOver(const RayHit& hit, float threshold) { return hit.T() >
 
 int main() {
 	Sphere sphere1 = Sphere();
-	if(CheckSpherePosition(sphere1, Vec4(0.0f, 0.0f, 0.0f)) && CheckSphereRadius(sphere1, 1.0f)) {
-		std::cout << GREEN << "Passed! " << "Sphere is initialized with correct center and radius." << RESET << std::endl;
+	if(CheckSphereInitialTransform(sphere1, glm::identity<glm::mat4>())) {
+		std::cout << GREEN << "Passed! " << "Sphere is initialized with correct transform." << RESET << std::endl;
 	} else {
-		std::cout << RED << "Failed! " << "Sphere is not initialized with correct center and radius." << RESET << std::endl;
+		std::cout << RED << "Failed! " << "Sphere is not initialized with correct transform." << RESET << std::endl;
 	}
 
 	// this intersection should yield 2 points at (0, 0, -1) and (0, 0, 1), t1 = 4 & t2 = 6
@@ -88,5 +87,49 @@ int main() {
 		std::cout << RED << "Failed! "
 		          << "a Ray that is in front of the sphere should intersect at 2 points, both t are negative" << RESET
 		          << std::endl;
+	}
+
+	// when transforming a sphere to (0, 1, 0), a ray ((0, 0, -3), (0, 0, 1)) should hit at (0, 1, 0)
+	Ray ray6 = Ray(MakePoint(Vec4(0.0f, 0.0f, -3.0f)), MakeDir(Vec4(0.0f, 0.0f, 1.0f)));
+	Sphere sphere2 = Sphere();
+	sphere2.SetTransform(glm::translate(glm::identity<glm::mat4>(), glm::vec3(0.0f, 1.0f, 0.0f)));
+	hits = sphere2.Intersect(ray6);
+	if(CheckHitDistance(hits[0], 3.0f)) {
+		std::cout << GREEN << "Passed! " << "Ray intersects the transformed sphere at the correct point." << RESET
+		          << std::endl;
+	} else {
+		std::cout << RED << "Failed! " << "Ray does not intersect the transformed sphere at the correct point." << RESET
+		          << std::endl;
+	}
+
+	// when the sphere is scaled by (2, 2, 2), the ray ((0, 0, -3), (0, 0, 1)) should hit at (-2, 0, 0) and (2, 0, 0)
+	glm::mat4 scaling = glm::scale(glm::identity<glm::mat4>(), glm::vec3(2.0f, 2.0f, 2.0f));
+	glm::mat4 transform = glm::transpose(scaling);// convert it to row-major
+	std::cout << glm::to_string(transform) << std::endl;
+	sphere2.SetTransform(transform);
+	hits = sphere2.Intersect(ray6);
+	if(CheckHitDistance(hits[0], 1.0f) && CheckHitDistance(hits[1], 5.0f)) {
+		std::cout << GREEN << "Passed! "
+		          << "Ray intersects the scaled sphere at the correct points." << RESET << std::endl;
+	} else {
+		std::cout << RED << "Failed! "
+		          << "Ray does not intersect the scaled sphere at the correct points, expected hit distances (1, 5), got ("
+		          << hits[0].T() << ", " << hits[1].T() << ")" << RESET << std::endl;
+	}
+
+	// when the sphere is scaled by (2, 2, 2) then translated by (0, 2, 0),
+	// the ray ((0, 0, -3), (0, 0, 1)) should hit at (0, 0, 0)
+	glm::mat4 translation = glm::translate(glm::identity<glm::mat4>(), glm::vec3(0.0f, 2.0f, 0.0f));
+	transform = glm::transpose(translation * scaling);// convert it to row-major
+	sphere2.SetTransform(transform);
+	hits = sphere2.Intersect(ray6);
+	if(CheckHitDistance(hits[0], 3.0f)) {
+		std::cout << GREEN << "Passed! "
+		          << "Ray intersects the scaled and translated sphere at the correct point." << RESET << std::endl;
+	} else {
+		std::cout
+		    << RED << "Failed! "
+		    << "Ray does not intersect the scaled and translated sphere at the correct point, expected hit distances (3), got ("
+		    << hits[0].T() << ")" << RESET << std::endl;
 	}
 }

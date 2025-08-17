@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glm/vec4.hpp>
+
 namespace MIRT {
 
 // w = 1 for positions, w = 0 for directions
@@ -29,6 +31,9 @@ Vec4 Cross(Vec4 a, Vec4 b);
 
 Vec4 MakePoint(Vec4 v = Vec4(0.0f, 0.0f, 0.0f));
 Vec4 MakeDir(Vec4 v = Vec4(0.0f, 0.0f, -1.0f));
+
+// converts glm::vec4 to MIRT::Vec4!
+Vec4 MakeVec4(const glm::vec4& v);
 
 const bool IsVec4Equal(Vec4 a, Vec4 b, float epsilon = Vec4::s_epsilon);
 

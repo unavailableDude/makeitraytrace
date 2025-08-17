@@ -2,6 +2,8 @@
 
 #include "Vec4.hpp"
 
+#include <glm/ext/matrix_float4x4.hpp>// mat4
+
 namespace MIRT {
 
 class Ray {
@@ -18,5 +20,7 @@ private:
 	Vec4 _origin;
 	Vec4 _direction;
 };
+
+Ray ApplyMatrixToRay(Ray r, glm::mat4 m);
 
 }// namespace MIRT

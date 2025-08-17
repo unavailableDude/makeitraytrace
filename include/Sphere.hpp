@@ -6,21 +6,26 @@
 #include "Vec4.hpp"
 #include "RayHit.hpp"
 
+#include <glm/ext/matrix_float4x4.hpp>// mat4
+#include <glm/ext/matrix_transform.hpp>
+
+
 namespace MIRT {
 
 class Sphere {
 public:
-	Sphere() : _center(MakePoint()), _radius(1.0f) {}
-	Sphere(const Vec4& center, float radius) : _center(center), _radius(radius) {}
+	Sphere() : _transform(glm::identity<glm::mat4>()) {}
+	// expects row-major matrix
+	Sphere(const glm::mat4& transform) : _transform(transform) {}
 
-	Vec4 Center() const;
-	float Radius() const;
+	glm::mat4 GetTransform() const;
+	// expects row-major matrix
+	void SetTransform(const glm::mat4& transform);
 
 	std::vector<RayHit> Intersect(const Ray& ray);
 
 private:
-	Vec4 _center;
-	float _radius;
+	glm::mat4 _transform;// row-major ordered
 };
 
 }// namespace MIRT

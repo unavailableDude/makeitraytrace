@@ -4,6 +4,7 @@
 #include <cmath>
 #include <iostream>
 
+
 namespace MIRT {
 
 
@@ -42,6 +43,8 @@ Vec4 MakePoint(Vec4 v) {
 Vec4 MakeDir(Vec4 v) {
 	return Vec4(v._x, v._y, v._z, 0.0f);// w = 0 for directions
 }
+
+Vec4 MakeVec4(const glm::vec4& v) { return Vec4(v.x, v.y, v.z, v.w); }
 
 // take s_epsilon into account
 const bool IsVec4Equal(Vec4 a, Vec4 b, float epsilon) {
