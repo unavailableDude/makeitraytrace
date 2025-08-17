@@ -105,7 +105,6 @@ int main() {
 	// when the sphere is scaled by (2, 2, 2), the ray ((0, 0, -3), (0, 0, 1)) should hit at (-2, 0, 0) and (2, 0, 0)
 	glm::mat4 scaling = glm::scale(glm::identity<glm::mat4>(), glm::vec3(2.0f, 2.0f, 2.0f));
 	glm::mat4 transform = glm::transpose(scaling);// convert it to row-major
-	std::cout << glm::to_string(transform) << std::endl;
 	sphere2.SetTransform(transform);
 	hits = sphere2.Intersect(ray6);
 	if(CheckHitDistance(hits[0], 1.0f) && CheckHitDistance(hits[1], 5.0f)) {
