@@ -1,6 +1,7 @@
 #include <iostream>
 #include <stdint.h>
 #include <cassert>
+#include <vector>
 #include <cmath>
 
 #include "../include/Color4.hpp"
@@ -95,6 +96,16 @@ int main() {
 	CanvasCheckDimensions(canvas1, 10, 20, "Canvas creation with specified dimensions.");
 	CanvasCheckWholeColor(canvas1, Color4(0, 0, 0, 1), eps, "Canvas initial color should be opaque black.");
 
+	// setting dimensions after creation
+	Canvas canvas2(400, 200);
+	canvas2.SetDimensions(5, 2);
+	CanvasCheckDimensions(canvas2, 5, 2, "changing canvas dimensions with SetDimensions.");
+
+	// setting all pixels with SetPixels with an outside array
+	std::vector<Color4> pixels(5 * 2, Color4(0.6f, 0.5f, 0.4f, 1.0f));
+	canvas2.SetPixels(pixels);
+	CanvasCheckWholeColor(canvas2, Color4(0.6f, 0.5f, 0.4f, 1.0f), eps, "setting all pixels with SetPixels.");
+
 	// drawing a pixel
 	canvas1.SetPixel(2, 3, Color4(1, 0, 0, 1));
 	CanvasCheckPixelColor(canvas1, 2, 3, Color4(1, 0, 0, 1), "drawing a pixel results in that pixel getting colored.");
@@ -103,6 +114,6 @@ int main() {
 	canvas1.SaveToPPM("../outputPPM/output.ppm", "P3");
 
 	// load the canvas
-	Canvas canvas2 = LoadPPM("../outputPPM/output.ppm");
+	canvas2 = LoadPPM("../outputPPM/output.ppm");
 	CanvasIsMatchingCanvases(canvas1, canvas2, "Loaded canvas should match saved canvas.");
 }

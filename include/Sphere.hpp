@@ -3,7 +3,6 @@
 #include <vector>
 
 #include "Ray.hpp"
-#include "Vec4.hpp"
 #include "RayHit.hpp"
 
 #include <glm/ext/matrix_float4x4.hpp>// mat4

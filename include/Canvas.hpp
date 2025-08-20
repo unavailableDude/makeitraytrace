@@ -17,6 +17,8 @@ public:
 	uint16_t GetWidth() const;
 	uint16_t GetHeight() const;
 
+	void SetDimensions(uint16_t width, uint16_t height);
+	void SetPixels(const std::vector<Color4>& pixels);
 	void SetPixel(uint16_t x, uint16_t y, const Color4& color);
 	Color4 GetPixel(uint16_t x, uint16_t y) const;
 

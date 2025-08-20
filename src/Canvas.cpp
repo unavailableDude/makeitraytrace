@@ -11,6 +11,14 @@ uint16_t Canvas::GetWidth() const { return _width; }
 
 uint16_t Canvas::GetHeight() const { return _height; }
 
+void Canvas::SetDimensions(uint16_t width, uint16_t height) {
+	_width = width;
+	_height = height;
+	_pixels.resize(width * height, Color4(0.0f, 0.0f, 0.0f, 1.0f));
+}
+
+void Canvas::SetPixels(const std::vector<Color4>& pixels) { _pixels = pixels; }
+
 void Canvas::SetPixel(uint16_t x, uint16_t y, const Color4& color) {
 	if(x < _width && y < _height) {
 		_pixels[y * _width + x] = color;

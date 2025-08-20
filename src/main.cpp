@@ -7,19 +7,12 @@
 // MIRT
 #include "../include/Vec4.hpp"
 #include "../include/Ray.hpp"
+#include "../include/Canvas.hpp"
+#include "../include/Renderer.hpp"
 
 
 const int SCRW = 640;
 const int SCRH = 480;
-
-
-using MIRT::Vec4;
-
-
-void TickProjectile(Vec4& position, Vec4& velocity, Vec4& influenceAcceleration, float deltaTime) {
-	position = position + velocity * deltaTime;
-	velocity = velocity + (influenceAcceleration * deltaTime);
-}
 
 
 int main(int argc, char* argv[]) {
@@ -29,7 +22,7 @@ int main(int argc, char* argv[]) {
 		return -1;
 	}
 	SDL_Window* window1 =
-	    SDL_CreateWindow("raytracer 0.0003", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCRW, SCRH, SDL_WINDOW_SHOWN);
+	    SDL_CreateWindow("raytracer 0.04", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCRW, SCRH, SDL_WINDOW_SHOWN);
 	SDL_Renderer* renderer1 = SDL_CreateRenderer(window1, -1, SDL_RENDERER_ACCELERATED);
 	if(window1 == NULL) {
 		std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
@@ -40,13 +33,13 @@ int main(int argc, char* argv[]) {
 		return -1;
 	}
 
-	Vec4 projectile1Position = MIRT::MakePoint(Vec4(0.0f, 0.0f, 0.0f));
-	Vec4 projectile1Velocity = MIRT::MakeDir(Vec4(50.0f, 50.0f, 0.0f));
-	Vec4 influenceAcceleration = MIRT::MakeDir(Vec4(-4.0f, -9.81f, 0.0f));// wind effects x, gravity effects y
-
 	// random garbage you will see, unless with black you clear the scree...n
 	SDL_SetRenderDrawColor(renderer1, 0, 0, 0, 255);
 	SDL_RenderClear(renderer1);
+
+	MIRT::Renderer artist(600, 400);
+	MIRT::Canvas canvas = artist.MakeArt();
+	canvas.SaveToPPM("../outputPPM/output.ppm", "P3");
 
 	SDL_Event event;
 	bool running = true;
@@ -69,17 +62,9 @@ int main(int argc, char* argv[]) {
 			}
 		}
 
-		TickProjectile(projectile1Position, projectile1Velocity, influenceAcceleration, 0.0166f);
-
-		// draw array
 		SDL_SetRenderDrawColor(renderer1, 255, 255, 255, 255);
-
-		SDL_RenderDrawPoint(renderer1, projectile1Position._x, SCRH - projectile1Position._y);
-
 		SDL_RenderPresent(renderer1);
 		SDL_Delay(16);
-		// SDL_SetRenderDrawColor(renderer1, 0, 0, 0, 255);
-		// SDL_RenderClear(renderer1);
 	}
 	SDL_Quit();
 
