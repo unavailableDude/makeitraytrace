@@ -30,8 +30,12 @@ Window::Window(const char* title, int w, int h) {
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
-	_SDLWindow =
-	    SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w, h, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+	_SDLWindow = SDL_CreateWindow(title,
+	                              SDL_WINDOWPOS_UNDEFINED,
+	                              SDL_WINDOWPOS_UNDEFINED,
+	                              w,
+	                              h,
+	                              SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 	if(_SDLWindow == NULL) {
 		std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
 		throw std::runtime_error("Window: Window could not be created!");

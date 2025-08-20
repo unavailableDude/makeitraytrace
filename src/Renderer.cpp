@@ -37,7 +37,7 @@ Canvas Renderer::MakeArt() {
 			std::vector<RayHit> hits = sphere1.Intersect(ray);
 			if(!hits.empty()) {
 				const RayHit& hit = FrontHit(hits);
-				currColor = Color4((hit.T() / dist), (hit.T() / dist), (hit.T() / dist), 1.0f);
+				currColor = Color4((hit.T()), (hit.T()), (hit.T()), 1.0f);
 			}
 			pixels[y * _width + x] = currColor;
 		}

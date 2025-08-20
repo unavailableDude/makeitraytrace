@@ -12,4 +12,6 @@ cmake --fresh -G "MinGW Makefiles" ..
 3- run the generated makefile in the build directory:
 make
 
+4- you might have to copy the SDL2.dll from \lib\SDL2\i686-w64-mingw32\bin
+
 4- enjoy!
