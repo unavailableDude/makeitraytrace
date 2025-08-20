@@ -9,18 +9,36 @@ set(SDL2_DIR ${CMAKE_CURRENT_LIST_DIR}/lib/SDL2/cmake/)
 find_package(SDL2 REQUIRED)
 set(glm_DIR ${CMAKE_CURRENT_LIST_DIR}/lib/glm/build/)
 find_package(glm CONFIG REQUIRED)
+find_package(OpenGL REQUIRED)
+
+file(GLOB IMGUI_SOURCES
+    "lib/imgui/*.cpp"
+    "lib/imgui/backends/imgui_impl_sdl2.cpp"
+    "lib/imgui/backends/imgui_impl_opengl3.cpp"
+)
+
+file(GLOB GLAD_SOURCES
+    "lib/glad/glad.c"
+)
 
 # set source files for the library
-set(LIB_SOURCES src/Vec4.cpp src/Ray.cpp src/Color4.cpp src/Canvas.cpp src/Sphere.cpp src/RayHit.cpp src/Renderer.cpp)
+set(LIB_SOURCES src/Vec4.cpp src/Ray.cpp src/Color4.cpp src/Canvas.cpp src/Sphere.cpp src/RayHit.cpp src/Renderer.cpp src/Window.cpp ${GLAD_SOURCES})
 
 # define library raytracer_core and add its sources, and include directories
 add_library(raytracer_core STATIC ${LIB_SOURCES})
-target_include_directories(raytracer_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(raytracer_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include 
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/glad/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui/backends
+    ${SDL2_INCLUDE_DIRS}
+    ${glm_INCLUDE_DIRS}
+)
 
 # add target, and link libraries
 add_executable(raytracer src/main.cpp)
-target_link_libraries(raytracer raytracer_core SDL2::SDL2main SDL2::SDL2 glm::glm-header-only)
-target_include_directories(raytracer PRIVATE ${SDL2_INCLUDE_DIRS})
+target_sources(raytracer PRIVATE ${IMGUI_SOURCES})
+target_link_libraries(raytracer raytracer_core SDL2::SDL2main SDL2::SDL2 glm::glm-header-only OpenGL::GL)
+target_include_directories(raytracer PRIVATE ${SDL2_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui ${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui/backends)
 
 
 #### for testing ####

@@ -1,6 +1,7 @@
 #include "../include/Renderer.hpp"
 
 #include <iostream>
+#include <chrono>
 
 // glm
 #include <glm/ext/matrix_float4x4.hpp>// mat4
@@ -24,6 +25,8 @@ Canvas Renderer::MakeArt() {
 	glm::mat4 scaling = glm::scale(glm::identity<glm::mat4>(), glm::vec3(100.0f, 100.0f, 100.0f));
 	sphere1.SetTransform(glm::transpose(translation * scaling));// convert it to row-major
 
+	auto renderStartTime = std::chrono::high_resolution_clock::now();
+
 	// draw
 	std::vector<Color4> pixels(_width * _height, Color4(1.0f, 0.0f, 1.0f, 1.0f));
 	float dist = 100.0f;
@@ -34,12 +37,15 @@ Canvas Renderer::MakeArt() {
 			std::vector<RayHit> hits = sphere1.Intersect(ray);
 			if(!hits.empty()) {
 				const RayHit& hit = FrontHit(hits);
-				std::cout << hit.T() << std::endl;
 				currColor = Color4((hit.T() / dist), (hit.T() / dist), (hit.T() / dist), 1.0f);
 			}
 			pixels[y * _width + x] = currColor;
 		}
 	}
+	auto renderEndTime = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<float, std::milli> renderDuration = renderEndTime - renderStartTime;
+	std::cout << "Render time: " << renderDuration.count() << " ms" << std::endl;
+	std::cout.flush();
 
 	// create canvas and return it
 	Canvas canvas(_width, _height);

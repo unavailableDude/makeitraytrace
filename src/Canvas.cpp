@@ -3,7 +3,6 @@
 #include <iostream>
 #include <fstream>
 
-
 namespace MIRT {
 
 
@@ -33,8 +32,6 @@ Color4 Canvas::GetPixel(uint16_t x, uint16_t y) const {
 }
 
 void Canvas::SaveToPPM(const std::string& filename, const std::string& magicNumber) const {
-	// std::cout << "SaveToPPM not finished" << std::endl;
-	// return;
 	std::ofstream file(filename);
 	if(!file) throw std::runtime_error("SaveToPPM(): file " + filename + " could not be opened");
 
