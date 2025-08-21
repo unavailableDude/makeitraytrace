@@ -1,47 +1,80 @@
 cmake_minimum_required(VERSION 3.10)
+
+set(CMAKE_SIZEOF_VOID_P 8)
+set(CMAKE_C_COMPILER "gcc.exe")
+set(CMAKE_CXX_COMPILER "g++.exe")
+
 project(Raytracer)
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS "-Wall -O0 -g")
+set(CMAKE_CXX_FLAGS "-Wall -O0 -g -static-libgcc -static-libstdc++")
 
-# set path to SDL2 and get it
+# SDL2
 set(SDL2_DIR ${CMAKE_CURRENT_LIST_DIR}/lib/SDL2/cmake/)
 find_package(SDL2 REQUIRED)
 
-# Use GLM as header-only library
-set(GLM_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/lib/glm)
+# GLM as header-only library
+add_library(glm_lib INTERFACE)
+target_include_directories(glm_lib INTERFACE ${CMAKE_CURRENT_LIST_DIR}/lib/glm)
 
 find_package(OpenGL REQUIRED)
 
+# GLAD
+file(GLOB GLAD_SOURCES
+"lib/glad/src/glad.c"
+)
+add_library(glad_lib STATIC ${GLAD_SOURCES})
+target_include_directories(glad_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/lib/glad/include)
+
+# ImGui
 file(GLOB IMGUI_SOURCES
     "lib/imgui/*.cpp"
     "lib/imgui/backends/imgui_impl_sdl2.cpp"
     "lib/imgui/backends/imgui_impl_opengl3.cpp"
 )
-
-file(GLOB GLAD_SOURCES
-    "lib/glad/glad.c"
-)
-
-# set source files for the library
-set(LIB_SOURCES src/Vec4.cpp src/Ray.cpp src/Color4.cpp src/Canvas.cpp src/Sphere.cpp src/RayHit.cpp src/Renderer.cpp src/Window.cpp ${GLAD_SOURCES})
-
-# define library raytracer_core and add its sources, and include directories
-add_library(raytracer_core STATIC ${LIB_SOURCES})
-target_include_directories(raytracer_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include 
-    ${CMAKE_CURRENT_SOURCE_DIR}/lib/glad/include
+add_library(imgui_lib STATIC ${IMGUI_SOURCES})
+target_include_directories(imgui_lib PUBLIC 
     ${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui
-    ${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui/backends
-    ${SDL2_INCLUDE_DIRS}
-    ${GLM_INCLUDE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui/backends`
+    ${SDL2_INCLUDE_DIRS} # imgui needs to see SDL2 includes
+)
+target_link_libraries(imgui_lib PUBLIC glad_lib)
+
+# MIRT core library
+set(MIRT_CORE_SOURCES 
+    src/Vec4.cpp 
+    src/Ray.cpp 
+    src/Color4.cpp 
+    src/Canvas.cpp 
+    src/Sphere.cpp 
+    src/RayHit.cpp 
+    src/Renderer.cpp 
+    src/Window.cpp
 )
 
-# add target, and link libraries
-add_executable(raytracer src/main.cpp)
-target_sources(raytracer PRIVATE ${IMGUI_SOURCES})
-target_link_libraries(raytracer raytracer_core SDL2::SDL2main SDL2::SDL2 OpenGL::GL)
-target_include_directories(raytracer PRIVATE ${SDL2_INCLUDE_DIRS} ${GLM_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui ${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui/backends)
+add_library(MIRT_CORE STATIC ${MIRT_CORE_SOURCES})
+target_include_directories(MIRT_CORE PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_link_libraries(MIRT_CORE PUBLIC 
+    glad_lib 
+    glm_lib 
+    imgui_lib 
+    SDL2::SDL2main 
+    SDL2::SDL2 
+    OpenGL::GL
+)
 
+# this is for the test binaries, they do not use SDL, so no sdl linking
+add_library(MIRT_CORE_TESTS STATIC ${MIRT_CORE_SOURCES})
+target_include_directories(MIRT_CORE_TESTS PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_link_libraries(MIRT_CORE_TESTS PUBLIC 
+    glad_lib 
+    glm_lib 
+    imgui_lib 
+    OpenGL::GL
+)
+
+add_executable(raytracer src/main.cpp)
+target_link_libraries(raytracer MIRT_CORE)
 
 #### for testing ####
 enable_testing()
@@ -54,7 +87,7 @@ foreach(test_file ${TEST_SOURCES})
     get_filename_component(test_name ${test_file} NAME_WE)
     # Create executable
     add_executable(${test_name} ${test_file})
-    target_link_libraries(${test_name} raytracer_core)
+    target_link_libraries(${test_name} MIRT_CORE_TESTS)
 	# Set output directory to build/tests
     set_target_properties(${test_name} PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests
