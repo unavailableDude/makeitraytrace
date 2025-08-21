@@ -45,11 +45,17 @@ Vec4 MakeDir(Vec4 v) {
 }
 
 Vec4 MakeVec4(const glm::vec4& v) { return Vec4(v.x, v.y, v.z, v.w); }
+glm::vec4 MakeGLMVec4(const Vec4& v) { return glm::vec4(v._x, v._y, v._z, v._w); }
 
 // take s_epsilon into account
 const bool IsVec4Equal(Vec4 a, Vec4 b, float epsilon) {
 	return ((fabs(a._x - b._x) < epsilon) && (fabs(a._y - b._y) < epsilon) && (fabs(a._z - b._z) < epsilon) &&
 	        (fabs(a._w - b._w) < epsilon));
+}
+
+const std::string ToString(const Vec4& v) {
+	return "(" + std::to_string(v._x) + ", " + std::to_string(v._y) + ", " + std::to_string(v._z) + ", " +
+	       std::to_string(v._w) + ")";
 }
 
 }// namespace MIRT

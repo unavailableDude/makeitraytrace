@@ -24,6 +24,7 @@ public:
 private:
 	uint16_t _width;
 	uint16_t _height;
+	float _aspectRatio;
 };
 
 }// namespace MIRT

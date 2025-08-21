@@ -4,13 +4,21 @@
 
 namespace MIRT {
 
-RayHit::RayHit() : t(std::numeric_limits<float>::max()), object(nullptr) {}
-RayHit::RayHit(float t) : t(t), object(nullptr) {}
+RayHit::RayHit() : _t(std::numeric_limits<float>::max()), _hitPoint(), _normal(), _object(nullptr) {}
+RayHit::RayHit(float t) : _t(t), _hitPoint(), _normal(), _object(nullptr) {}
+RayHit::RayHit(float t, const Vec4& hitPoint, const Vec4& normal, Sphere* object)
+    : _t(t),
+      _hitPoint(hitPoint),
+      _normal(normal),
+      _object(object) {}
 
-float RayHit::T() const { return t; }
-Sphere* RayHit::Object() const { return object; }
+float RayHit::T() const { return _t; }
+Vec4 RayHit::HitPoint() const { return _hitPoint; }
+Vec4 RayHit::Normal() const { return _normal; }
+Sphere* RayHit::Object() const { return _object; }
 
-RayHit FrontHit(std::vector<RayHit> hits) {
+
+RayHit FrontHit(const std::vector<RayHit>& hits) {
 	if(hits.empty()) return RayHit();
 
 	int idxOfClosestHit = -1;// if stays at -1, all found hits are negative

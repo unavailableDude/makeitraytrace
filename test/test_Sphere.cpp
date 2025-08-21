@@ -30,7 +30,23 @@ bool CheckHitDistance(const RayHit& hit, float distance, float eps = Vec4::s_eps
 
 bool CheckHitDistanceOver(const RayHit& hit, float threshold) { return hit.T() > threshold; }
 
-int main() {
+bool CheckNormalAtPoint(const Sphere& sphere,
+                        const Vec4& point,
+                        const Vec4& expectedNormal,
+                        const std::string& title,
+                        float eps = Vec4::s_epsilon) {
+	if(IsVec4Equal(sphere.NormalAtPoint(point), expectedNormal, eps)) {
+		std::cout << GREEN << "Passed! " << title << RESET << std::endl;
+		return true;
+	} else {
+		std::cout << RED << "Failed! " << title << RESET << std::endl;
+		std::cout << "Expected: " << ToString(expectedNormal) << ", Got: " << ToString(sphere.NormalAtPoint(point))
+		          << std::endl;
+		return false;
+	}
+}
+
+int main(int argc, char* argv[]) {
 	Sphere sphere1 = Sphere();
 	if(CheckSphereInitialTransform(sphere1, glm::identity<glm::mat4>())) {
 		std::cout << GREEN << "Passed! " << "Sphere is initialized with correct transform." << RESET << std::endl;
@@ -131,4 +147,64 @@ int main() {
 		    << "Ray does not intersect the scaled and translated sphere at the correct point, expected hit distances (3), got ("
 		    << hits[0].T() << ")" << RESET << std::endl;
 	}
+
+	// the normals of a unit sphere at world origin
+	Sphere sphere3 = Sphere();
+	Vec4 point100 = MakePoint(Vec4(1.0f, 0.0f, 0.0f));
+	Vec4 point010 = MakePoint(Vec4(0.0f, 1.0f, 0.0f));
+	Vec4 point001 = MakePoint(Vec4(0.0f, 0.0f, 1.0f));
+	CheckNormalAtPoint(sphere3, point100, Vec4(1.0f, 0.0f, 0.0f, 0.0f), "Normal of unit sphere at (1, 0, 0) is (1, 0, 0)");
+	CheckNormalAtPoint(sphere3, point010, Vec4(0.0f, 1.0f, 0.0f, 0.0f), "Normal of unit sphere at (0, 1, 0) is (0, 1, 0)");
+	CheckNormalAtPoint(sphere3, point001, Vec4(0.0f, 0.0f, 1.0f, 0.0f), "Normal of unit sphere at (0, 0, 1) is (0, 0, 1)");
+
+	float sqrt3 = sqrt(3.0f);
+	float thirdsqrt3 = sqrt3 / 3.0f;
+	Vec4 normalSQRT3 = MakePoint(Vec4(thirdsqrt3, thirdsqrt3, thirdsqrt3));
+	CheckNormalAtPoint(sphere3,
+	                   normalSQRT3,
+	                   Vec4(thirdsqrt3, thirdsqrt3, thirdsqrt3, 0.0f),
+	                   "Normal of unit sphere at " + ToString(normalSQRT3) + " is " +
+	                       ToString(Vec4(thirdsqrt3, thirdsqrt3, thirdsqrt3, 0.0f)));
+
+	// normals of a unit sphere at (0, 1, 0)
+	glm::mat4 translation3 = glm::translate(glm::identity<glm::mat4>(), glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::mat4 transform3 = glm::transpose(translation3);
+	sphere3.SetTransform(transform3);
+
+	Vec4 point110 = MakePoint(Vec4(1.0f, 1.0f, 0.0f));
+	Vec4 point020 = MakePoint(Vec4(0.0f, 2.0f, 0.0f));
+	Vec4 point011 = MakePoint(Vec4(0.0f, 1.0f, 1.0f));
+	CheckNormalAtPoint(sphere3, point110, Vec4(1.0f, 0.0f, 0.0f, 0.0f), "Normal of unit sphere at (1, 1, 0) is (1, 0, 0)");
+	CheckNormalAtPoint(sphere3, point020, Vec4(0.0f, 1.0f, 0.0f, 0.0f), "Normal of unit sphere at (0, 2, 0) is (0, 1, 0)");
+	CheckNormalAtPoint(sphere3, point011, Vec4(0.0f, 0.0f, 1.0f, 0.0f), "Normal of unit sphere at (0, 1, 1) is (0, 0, 1)");
+
+	// the normals of a scaled sphere
+	glm::mat4 scaling2 = glm::scale(glm::identity<glm::mat4>(), glm::vec3(2.0f, 2.0f, 2.0f));
+	glm::mat4 transform4 = glm::transpose(scaling2);
+	sphere3.SetTransform(transform4);
+
+	Vec4 pointS200 = MakePoint(Vec4(2.0f, 0.0f, 0.0f));
+	Vec4 pointS020 = MakePoint(Vec4(0.0f, 2.0f, 0.0f));
+	Vec4 pointS002 = MakePoint(Vec4(0.0f, 0.0f, 2.0f));
+	CheckNormalAtPoint(sphere3, pointS200, Vec4(1.0f, 0.0f, 0.0f, 0.0f), "Normal of scaled sphere at (2, 0, 0) is (1, 0, 0)");
+	CheckNormalAtPoint(sphere3, pointS020, Vec4(0.0f, 1.0f, 0.0f, 0.0f), "Normal of scaled sphere at (0, 2, 0) is (0, 1, 0)");
+	CheckNormalAtPoint(sphere3, pointS002, Vec4(0.0f, 0.0f, 1.0f, 0.0f), "Normal of scaled sphere at (0, 0, 2) is (0, 0, 1)");
+
+	// normals of a scaled translated sphere, at (0, 1, 0) scaled by 2
+	sphere3.SetTransform(glm::transpose(translation3 * scaling2));
+	Vec4 pointST200 = MakePoint(Vec4(2.0f, 1.0f, 0.0f));
+	Vec4 pointST020 = MakePoint(Vec4(0.0f, 3.0f, 0.0f));
+	Vec4 pointST002 = MakePoint(Vec4(0.0f, 1.0f, 2.0f));
+	CheckNormalAtPoint(sphere3,
+	                   pointST200,
+	                   Vec4(1.0f, 0.0f, 0.0f, 0.0f),
+	                   "Normal of scaled translated sphere at (2, 1, 0) is (1, 0, 0)");
+	CheckNormalAtPoint(sphere3,
+	                   pointST020,
+	                   Vec4(0.0f, 1.0f, 0.0f, 0.0f),
+	                   "Normal of scaled translated sphere at (0, 3, 0) is (0, 1, 0)");
+	CheckNormalAtPoint(sphere3,
+	                   pointST002,
+	                   Vec4(0.0f, 0.0f, 1.0f, 0.0f),
+	                   "Normal of scaled translated sphere at (0, 0, 2) is (0, 0, 1)");
 }

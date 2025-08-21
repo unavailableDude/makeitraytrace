@@ -90,7 +90,7 @@ bool CanvasIsMatchingCanvases(const Canvas& a, const Canvas& b, const char* titl
 	return true;
 }
 
-int main() {
+int main(int argc, char* argv[]) {
 	float eps = Vec4::s_epsilon;
 	Canvas canvas1(10, 20);
 	CanvasCheckDimensions(canvas1, 10, 20, "Canvas creation with specified dimensions.");
@@ -111,9 +111,9 @@ int main() {
 	CanvasCheckPixelColor(canvas1, 2, 3, Color4(1, 0, 0, 1), "drawing a pixel results in that pixel getting colored.");
 
 	// Save the canvas to a PPM file
-	canvas1.SaveToPPM("../outputPPM/output.ppm", "P3");
+	canvas1.SaveToPPM("../output.ppm", "P3");
 
 	// load the canvas
-	canvas2 = LoadPPM("../outputPPM/output.ppm");
+	canvas2 = LoadPPM("../output.ppm");
 	CanvasIsMatchingCanvases(canvas1, canvas2, "Loaded canvas should match saved canvas.");
 }

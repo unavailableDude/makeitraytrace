@@ -22,7 +22,7 @@
 #define RESET "\033[0m"
 
 
-int main() {
+int main(int argc, char* argv[]) {
 	/*
 	    matrix1:
 	    1, 2, 3, 4

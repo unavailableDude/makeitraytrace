@@ -29,7 +29,7 @@ bool CheckDimensions(const Renderer& r,
 }
 
 
-int main() {
+int main(int argc, char* argv[]) {
 	// renderer is created with the specified dimensions
 	Renderer rend1 = Renderer(20, 10);
 	CheckDimensions(rend1, 20, 10, "Renderer creation with specified dimensions.");

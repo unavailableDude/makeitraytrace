@@ -34,7 +34,7 @@ bool CheckRayPosAtT(const Ray& ray, float t, float x, float y, float z, float ep
 	       (fabs(ray.Position(t)._z - z) < eps);
 }
 
-int main() {
+int main(int argc, char* argv[]) {
 	Ray ray1 = Ray(MakePoint(Vec4(1.0f, 2.0f, 3.0f)), MakeDir(Vec4(4.0f, 5.0f, 6.0f)));
 	if(CheckRayOrigin(ray1, 1.0f, 2.0f, 3.0f) && CheckRayDirection(ray1, 4.0f, 5.0f, 6.0f)) {
 		std::cout << GREEN << "Passed! " << "Ray is initialized with correct origin and direction." << RESET << std::endl;
