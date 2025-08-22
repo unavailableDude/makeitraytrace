@@ -31,7 +31,7 @@ Color4 Canvas::GetPixel(uint16_t x, uint16_t y) const {
 	return Color4();// Return a default color if out of bounds
 }
 
-void Canvas::SaveToPPM(const std::string& filename, const std::string& magicNumber) const {
+void Canvas::SaveToPPM(const std::string& filename, const std::string& magicNumber, bool flipY) const {
 	std::ofstream file(filename);
 	if(!file) throw std::runtime_error("SaveToPPM(): file " + filename + " could not be opened");
 
@@ -43,7 +43,7 @@ void Canvas::SaveToPPM(const std::string& filename, const std::string& magicNumb
 	// Write the pixel data
 	for(uint16_t y = 0; y < _height; ++y) {
 		for(uint16_t x = 0; x < _width; ++x) {
-			const Color4& pixel = GetPixel(x, y);
+			const Color4& pixel = GetPixel(x, (flipY) ? (_height - 1 - y) : y);
 			// casting to uint16_t to avoid weird values that produce wrong colors when loaded by LoadPPM
 			file << static_cast<uint16_t>(pixel.r() * 255) << " " << static_cast<uint16_t>(pixel.g() * 255) << " "
 			     << static_cast<uint16_t>(pixel.b() * 255) << " ";

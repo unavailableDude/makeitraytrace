@@ -25,7 +25,7 @@ public:
 	void SetTransform(const glm::mat4& transform);
 
 	std::vector<RayHit> Intersect(const Ray& ray);
-	Vec4 NormalAtPoint(const Vec4& point) const;
+	Vec4 NormalAtPoint(const Vec4& point, bool ignoreW = false) const;
 
 private:
 	Material _material;

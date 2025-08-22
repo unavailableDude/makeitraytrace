@@ -24,7 +24,7 @@ int main(int argc, char* argv[]) {
 
 	MIRT::Renderer artist(600, 400);
 	MIRT::Canvas canvas = artist.MakeArt();
-	canvas.SaveToPPM("output.ppm", "P3");
+	canvas.SaveToPPM("output.ppm", "P3", true);
 
 	// the main loop
 	SDL_Event event;

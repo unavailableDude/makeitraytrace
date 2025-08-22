@@ -23,7 +23,7 @@ public:
 	Color4 GetPixel(uint16_t x, uint16_t y) const;
 
 	// saves the canvas to ppm file, the saved colors are scaled to [0, 255]
-	void SaveToPPM(const std::string& filename, const std::string& magicNumber) const;
+	void SaveToPPM(const std::string& filename, const std::string& magicNumber, bool flipY = false) const;
 
 private:
 	uint16_t _width;

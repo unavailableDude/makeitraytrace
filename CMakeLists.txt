@@ -49,13 +49,19 @@ set(MIRT_CORE_SOURCES
     src/RayHit.cpp 
     src/Renderer.cpp 
     src/Sphere.cpp 
+    src/PointLight.cpp
     src/Vec4.cpp 
     src/Window.cpp
 )
 
 add_library(MIRT_CORE STATIC ${MIRT_CORE_SOURCES})
-target_include_directories(MIRT_CORE PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_link_libraries(MIRT_CORE PUBLIC 
+target_include_directories(MIRT_CORE PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include 
+                                            ${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui 
+                                            ${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui/backends 
+                                            ${SDL2_INCLUDE_DIRS})# add imgui's includes so make doesn't complain about them in Window.cpp
+
+add_library(MIRT_DEPS INTERFACE)
+target_link_libraries(MIRT_DEPS INTERFACE
     glad_lib 
     glm_lib 
     imgui_lib 
@@ -65,9 +71,9 @@ target_link_libraries(MIRT_CORE PUBLIC
 )
 
 # this is for the test binaries, they do not use SDL, so no sdl linking
-add_library(MIRT_CORE_TESTS STATIC ${MIRT_CORE_SOURCES})
-target_include_directories(MIRT_CORE_TESTS PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_link_libraries(MIRT_CORE_TESTS PUBLIC 
+add_library(MIRT_TEST_DEPS STATIC ${MIRT_CORE_SOURCES})
+target_include_directories(MIRT_TEST_DEPS PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_link_libraries(MIRT_TEST_DEPS PUBLIC 
     glad_lib 
     glm_lib 
     imgui_lib 
@@ -75,7 +81,7 @@ target_link_libraries(MIRT_CORE_TESTS PUBLIC
 )
 
 add_executable(raytracer src/main.cpp)
-target_link_libraries(raytracer MIRT_CORE)
+target_link_libraries(raytracer MIRT_CORE MIRT_DEPS)
 
 #### for testing ####
 enable_testing()
@@ -88,7 +94,7 @@ foreach(test_file ${TEST_SOURCES})
     get_filename_component(test_name ${test_file} NAME_WE)
     # Create executable
     add_executable(${test_name} ${test_file})
-    target_link_libraries(${test_name} MIRT_CORE_TESTS)
+    target_link_libraries(${test_name} MIRT_TEST_DEPS)
 	# Set output directory to build/tests
     set_target_properties(${test_name} PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests

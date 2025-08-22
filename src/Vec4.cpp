@@ -16,6 +16,7 @@ Vec4 Vec4::operator/(float scalar) const {
 	if(scalar == 0.0f) return Vec4(0.0f, 0.0f, 0.0f, 0.0f);
 	return Vec4(_x / scalar, _y / scalar, _z / scalar, _w / scalar);
 }
+bool Vec4::operator==(const Vec4& other) const { return IsVec4Equal(*this, other); }
 
 float Vec4::Magnitude() const { return sqrtf(_x * _x + _y * _y + _z * _z + _w * _w); }
 

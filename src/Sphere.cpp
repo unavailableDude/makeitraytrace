@@ -34,11 +34,16 @@ std::vector<RayHit> Sphere::Intersect(const Ray& ray) {
 	float t1 = (-b - sqrtDiscriminant) / (2.0f * a);
 	float t2 = (-b + sqrtDiscriminant) / (2.0f * a);
 
-	Vec4 normal1 = NormalAtPoint(transformedRay.Position(t1));
-	Vec4 normal2 = NormalAtPoint(transformedRay.Position(t2));
+	Vec4 point1 = transformedRay.Position(t1);
+	Vec4 point2 = transformedRay.Position(t2);
 
-	RayHit hit1(t1, transformedRay.Position(t1), normal1, this);
-	RayHit hit2(t2, transformedRay.Position(t2), normal2, this);
+	// for some reason, ignoring the w component while calculating the normal of an intersection point, having a w component
+	// messes up the normal
+	Vec4 normal1 = NormalAtPoint(point1, true);
+	Vec4 normal2 = NormalAtPoint(point2, true);
+
+	RayHit hit1(t1, point1, normal1, this);
+	RayHit hit2(t2, point2, normal2, this);
 
 	hits.push_back(hit1);
 	hits.push_back(hit2);
@@ -46,7 +51,7 @@ std::vector<RayHit> Sphere::Intersect(const Ray& ray) {
 	return hits;
 }
 
-Vec4 Sphere::NormalAtPoint(const Vec4& point) const {
+Vec4 Sphere::NormalAtPoint(const Vec4& point, bool ignoreW) const {
 	// remember, glm uses column-major order, but we use row-major, so we convert a row-major matrix to column major before we
 	// use it with glm, and also we convert the result of glm to row-major before we use it
 
@@ -54,6 +59,7 @@ Vec4 Sphere::NormalAtPoint(const Vec4& point) const {
 	// then we find the normal at that point for a sphere it is (point - center), then we transform this normal by the
 	// transpose of the inverse of the transform matrix, then we set the w component to 0 to avoid some problems
 	Vec4 wsPoint = point;
+	if(ignoreW) wsPoint._w = 0.0f;
 	glm::mat4 transformCM = glm::transpose(_transform);
 	Vec4 osPoint = MakeVec4(glm::inverse(transformCM) * MakeGLMVec4(wsPoint));
 	Vec4 osNormal = osPoint - Vec4(0.0f, 0.0f, 0.0f, 1.0f);
