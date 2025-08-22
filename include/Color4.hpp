@@ -24,6 +24,13 @@ public:
 	float b() const;
 	float a() const;
 
+	void R(float value);
+	void G(float value);
+	void B(float value);
+	void A(float value);
+
+	void SetRGBA(float r, float g, float b, float a);
+
 	Color4 operator+(const Color4& other) const;
 	Color4 operator-(const Color4& other) const;
 	Color4 operator*(const Color4& other) const;// hadamard product

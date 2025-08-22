@@ -4,6 +4,7 @@
 
 #include "Ray.hpp"
 #include "RayHit.hpp"
+#include "Material.hpp"
 
 #include <glm/ext/matrix_float4x4.hpp>// mat4
 #include <glm/ext/matrix_transform.hpp>
@@ -13,10 +14,12 @@ namespace MIRT {
 
 class Sphere {
 public:
-	Sphere() : _transform(glm::identity<glm::mat4>()) {}
+	Sphere() : _material(), _transform(glm::identity<glm::mat4>()) {}
 	// expects row-major matrix
-	Sphere(const glm::mat4& transform) : _transform(transform) {}
+	Sphere(const glm::mat4& transform) : _material(), _transform(transform) {}
 
+	Material GetMaterial() const;
+	void SetMaterial(const Material& material);
 	glm::mat4 GetTransform() const;
 	// expects row-major matrix
 	void SetTransform(const glm::mat4& transform);
@@ -25,6 +28,7 @@ public:
 	Vec4 NormalAtPoint(const Vec4& point) const;
 
 private:
+	Material _material;
 	glm::mat4 _transform;// row-major ordered
 };
 

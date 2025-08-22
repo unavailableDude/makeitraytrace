@@ -2,6 +2,7 @@
 
 
 #include <glm/vec4.hpp>
+#include <glm/vec3.hpp>
 
 #include <string>
 
@@ -31,13 +32,16 @@ struct Vec4 {
 
 float Dot(Vec4 a, Vec4 b);
 Vec4 Cross(Vec4 a, Vec4 b);
+Vec4 Reflect(const Vec4& incident, const Vec4& normal);
 
 Vec4 MakePoint(Vec4 v = Vec4(0.0f, 0.0f, 0.0f));
 Vec4 MakeDir(Vec4 v = Vec4(0.0f, 0.0f, -1.0f));
 
 // convenience functions, to convert between glm::vec4 and MIRT::Vec4
 Vec4 MakeVec4(const glm::vec4& v);
+Vec4 MakeVec4(const glm::vec3& v);
 glm::vec4 MakeGLMVec4(const Vec4& v);
+glm::vec3 MakeGLMVec3(const Vec4& v);
 
 const bool IsVec4Equal(Vec4 a, Vec4 b, float epsilon = Vec4::s_epsilon);
 const std::string ToString(const Vec4& v);

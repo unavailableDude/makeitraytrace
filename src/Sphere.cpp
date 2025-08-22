@@ -1,12 +1,15 @@
 #include <cmath>
 
 #include "../include/Sphere.hpp"
-
 #include "Vec4.hpp"
+
+#include "../include/glm/matrix.hpp"
 
 
 namespace MIRT {
 
+Material Sphere::GetMaterial() const { return _material; }
+void Sphere::SetMaterial(const Material& material) { _material = material; }
 glm::mat4 Sphere::GetTransform() const { return _transform; }
 void Sphere::SetTransform(const glm::mat4& transform) { _transform = transform; }
 
@@ -50,11 +53,14 @@ Vec4 Sphere::NormalAtPoint(const Vec4& point) const {
 	// to get the normal, we get the object-space point, by inverse transforming it using the object's transform matrix,
 	// then we find the normal at that point for a sphere it is (point - center), then we transform this normal by the
 	// transpose of the inverse of the transform matrix, then we set the w component to 0 to avoid some problems
-	Vec4 objectSpacePoint = MakeVec4(glm::inverse(glm::transpose(_transform)) * MakeGLMVec4(point));
-	Vec4 objectSpaceNormal = objectSpacePoint - Vec4(0.0f, 0.0f, 0.0f, 1.0f);
-	Vec4 worldSpaceNormal =
-	    MakeDir(MakeVec4(glm::transpose(glm::inverse(glm::transpose(_transform))) * MakeGLMVec4(objectSpaceNormal)));
-	return worldSpaceNormal.Normalize();
+	Vec4 wsPoint = point;
+	glm::mat4 transformCM = glm::transpose(_transform);
+	Vec4 osPoint = MakeVec4(glm::inverse(transformCM) * MakeGLMVec4(wsPoint));
+	Vec4 osNormal = osPoint - Vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	osNormal._w = 0.0f;
+	osNormal = MakeVec4(glm::transpose(glm::inverse(transformCM)) * MakeGLMVec4(osNormal));
+	osNormal._w = 0.0f;
+	return osNormal.Normalize();
 }
 
 }// namespace MIRT

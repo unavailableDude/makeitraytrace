@@ -35,20 +35,21 @@ file(GLOB IMGUI_SOURCES
 add_library(imgui_lib STATIC ${IMGUI_SOURCES})
 target_include_directories(imgui_lib PUBLIC 
     ${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui
-    ${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui/backends`
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui/backends
     ${SDL2_INCLUDE_DIRS} # imgui needs to see SDL2 includes
 )
 target_link_libraries(imgui_lib PUBLIC glad_lib)
 
 # MIRT core library
 set(MIRT_CORE_SOURCES 
-    src/Vec4.cpp 
-    src/Ray.cpp 
-    src/Color4.cpp 
     src/Canvas.cpp 
-    src/Sphere.cpp 
+    src/Color4.cpp 
+    src/Material.cpp
+    src/Ray.cpp 
     src/RayHit.cpp 
     src/Renderer.cpp 
+    src/Sphere.cpp 
+    src/Vec4.cpp 
     src/Window.cpp
 )
 

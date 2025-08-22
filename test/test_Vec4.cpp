@@ -155,5 +155,24 @@ int main(int argc, char* argv[]) {
 	AssertEqual(crossResult1, -1.0f, 2.0f, -1.0f, 0.0f, eps, "cross(1,2,3) and (2,3,4) = (-1,2,-1,0)");
 	AssertEqual(crossResult2, 1.0f, -2.0f, 1.0f, 0.0f, eps, "cross(2,3,4) and (1,2,3) = (1,-2,1,0)");
 
+	// test the reflection function
+	// reflecting a vector approaching at 45 degrees
+	Vec4 incidentV1 = MakeDir(Vec4(1.0f, -1.0f, 0.0f));
+	Vec4 normalV1 = MakeDir(Vec4(0.0f, 1.0f, 0.0f));
+	Vec4 reflectedV1 = Reflect(incidentV1, normalV1);
+	AssertEqual(reflectedV1, 1.0f, 1.0f, 0.0f, 0.0f, eps, "Vec4 reflection of (1,-1,0) around (0,1,0) = (1,1,0)");
+
+	// same, with the surface now at 45 degrees and the incident vector is vertical
+	incidentV1 = MakeDir(Vec4(0.0f, -1.0f, 0.0f));
+	normalV1 = MakeDir(Vec4((sqrt(2.0f) / 2.0f), (sqrt(2.0f) / 2.0f), 0.0f));
+	reflectedV1 = Reflect(incidentV1, normalV1);
+	AssertEqual(reflectedV1,
+	            1.0f,
+	            0.0f,
+	            0.0f,
+	            0.0f,
+	            eps,
+	            "Vec4 reflection of (0, -1, 0) around (sqrt(2)/2, sqrt(2)/2, 0) = (1, 0, 0)");
+
 	return 0;
 }

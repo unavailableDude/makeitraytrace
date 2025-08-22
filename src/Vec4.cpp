@@ -36,6 +36,11 @@ Vec4 Cross(Vec4 a, Vec4 b) {
 	            0.0f);// w = 0 for directions
 }
 
+Vec4 Reflect(const Vec4& incident, const Vec4& normal) {
+	// reflect the incident vector around the normal vector
+	return incident - (normal * 2.0f * Dot(incident, normal));
+}
+
 Vec4 MakePoint(Vec4 v) {
 	return Vec4(v._x, v._y, v._z, 1.0f);// w = 1 for positions
 }
@@ -45,7 +50,9 @@ Vec4 MakeDir(Vec4 v) {
 }
 
 Vec4 MakeVec4(const glm::vec4& v) { return Vec4(v.x, v.y, v.z, v.w); }
+Vec4 MakeVec4(const glm::vec3& v) { return Vec4(v.x, v.y, v.z, 0.0f); }
 glm::vec4 MakeGLMVec4(const Vec4& v) { return glm::vec4(v._x, v._y, v._z, v._w); }
+glm::vec3 MakeGLMVec3(const Vec4& v) { return glm::vec3(v._x, v._y, v._z); }
 
 // take s_epsilon into account
 const bool IsVec4Equal(Vec4 a, Vec4 b, float epsilon) {

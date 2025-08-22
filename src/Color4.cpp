@@ -15,6 +15,18 @@ float Color4::g() const { return G(); }
 float Color4::b() const { return B(); }
 float Color4::a() const { return A(); }
 
+void Color4::R(float value) { _rgbaComponents._x = value; }
+void Color4::G(float value) { _rgbaComponents._y = value; }
+void Color4::B(float value) { _rgbaComponents._z = value; }
+void Color4::A(float value) { _rgbaComponents._w = value; }
+
+void Color4::SetRGBA(float r, float g, float b, float a) {
+	_rgbaComponents._x = r;
+	_rgbaComponents._y = g;
+	_rgbaComponents._z = b;
+	_rgbaComponents._w = a;
+}
+
 Color4 Color4::operator+(const Color4& other) const {
 	return Color4(r() + other.r(), g() + other.g(), b() + other.b(), a() + other.a());
 }
