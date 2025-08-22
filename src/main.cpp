@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <cstdint>
 
 #include "../include/SDL2/SDL.h"
 #include "../include/glm/glm.hpp"
@@ -13,6 +14,7 @@
 #include "../include/Canvas.hpp"
 #include "../include/Renderer.hpp"
 #include "../include/Window.hpp"
+#include "OpenGLLayer.hpp"
 
 
 const int SCRW = 640;
@@ -23,8 +25,9 @@ int main(int argc, char* argv[]) {
 	MIRT::Window window1("raytracer 0.05", SCRW, SCRH);
 
 	MIRT::Renderer artist(600, 400);
-	MIRT::Canvas canvas = artist.MakeArt();
-	canvas.SaveToPPM("output.ppm", "P3", true);
+	artist.PreparePipeline();
+
+	window1.SetRenderer(&artist);
 
 	// the main loop
 	SDL_Event event;
@@ -44,6 +47,7 @@ int main(int argc, char* argv[]) {
 				}
 			}
 		}
+		artist.MakeArt();
 		window1.Update();
 		SDL_Delay(16);
 	}

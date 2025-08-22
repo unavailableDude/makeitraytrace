@@ -3,10 +3,11 @@
 
 #include <iostream>
 
-#include <GL/gl.h>
 #include "../lib/imgui/imgui.h"
 #include "../lib/imgui/backends/imgui_impl_sdl2.h"
 #include "../lib/imgui/backends/imgui_impl_opengl3.h"
+
+#include "OpenGLLayer.hpp"
 
 
 namespace MIRT {
@@ -16,19 +17,11 @@ namespace MIRT {
 bool Window::s_isSDLInitialized = false;
 
 
-Window::Window() {}
-Window::Window(const char* title, int w, int h) {
+Window::Window() : _renderer(nullptr) {}
+Window::Window(const char* title, int w, int h) : _renderer(nullptr) {
 	// init order: SDL -> OGL attr -> Window -> OGL context -> ImGUI
 	InitializeSDL();
 
-	// Set SDL OpenGL attributes before creating window
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
 	_SDLWindow = SDL_CreateWindow(title,
 	                              SDL_WINDOWPOS_UNDEFINED,
@@ -47,6 +40,8 @@ Window::Window(const char* title, int w, int h) {
 		throw std::runtime_error("Window: OpenGL context could not be created!");
 	}
 
+	// Set SDL OpenGL attributes before creating window, this has to be done before creating the gl context
+	OpenGLLayer::InitOGL();
 	// Initialize ImGui after OpenGL context is created
 	InitializeImGUI();
 
@@ -65,6 +60,9 @@ Window::~Window() {
 	// SDL_DestroyRenderer(_SDLRenderer);
 	SDL_DestroyWindow(_SDLWindow);
 }
+
+void Window::SetRenderer(Renderer* renderer) { _renderer = renderer; }
+void Window::SetTextureToShow(uint32_t textureID) { _textureToShow = textureID; }
 
 void Window::Update() { DrawGUI(); }
 
@@ -96,18 +94,18 @@ void Window::DrawGUI() {
 	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None);
 	ImGui::End();
 
-	// Debug frame - now can snap to edges
+	// Debug frame
 	ImGui::Begin("Debug Info");
 	ImGui::Text("Render Time: xx ms");
 	ImGui::End();
 
-	// Viewport frame - now can snap to edges
+	// Viewport frame
 	ImGui::Begin("Viewport");
+	ImGui::Image((ImTextureID)_renderer->GetFrameBufferID(), ImVec2(_width, _height));
 	ImGui::End();
 
 	ImGui::Render();
 	glViewport(0, 0, _width, _height);
-	glClear(GL_COLOR_BUFFER_BIT);
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 	SDL_GL_SwapWindow(_SDLWindow);
 }

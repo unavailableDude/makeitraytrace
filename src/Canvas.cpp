@@ -6,6 +6,8 @@
 namespace MIRT {
 
 
+Canvas::~Canvas() { delete[] _pixelArray; }
+
 uint16_t Canvas::GetWidth() const { return _width; }
 
 uint16_t Canvas::GetHeight() const { return _height; }
@@ -29,6 +31,24 @@ Color4 Canvas::GetPixel(uint16_t x, uint16_t y) const {
 		return _pixels[y * _width + x];
 	}
 	return Color4();// Return a default color if out of bounds
+}
+
+// creates an array of elements of size 4 bytes, which are the raw color values
+uint32_t* Canvas::GetPixelArray() {
+	if(_hasPreparedArray) return _pixelArray;
+	_pixelArray = new uint32_t[_width * _height];
+	for(uint16_t y = 0; y < _height; ++y) {
+		for(uint16_t x = 0; x < _width; ++x) {
+			const Color4& pixel = GetPixel(x, y);
+			uint8_t r = static_cast<uint8_t>(pixel.r() * 255);
+			uint8_t g = static_cast<uint8_t>(pixel.g() * 255);
+			uint8_t b = static_cast<uint8_t>(pixel.b() * 255);
+			uint8_t a = static_cast<uint8_t>(pixel.a() * 255);
+			_pixelArray[y * _width + x] = (r << 24) | (g << 16) | (b << 8) | a;// RGBA format
+		}
+	}
+	_hasPreparedArray = true;
+	return _pixelArray;
 }
 
 void Canvas::SaveToPPM(const std::string& filename, const std::string& magicNumber, bool flipY) const {

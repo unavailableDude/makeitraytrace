@@ -110,8 +110,7 @@ int main(int argc, char* argv[]) {
 	canvas1.SetPixel(2, 3, Color4(1, 0, 0, 1));
 	CanvasCheckPixelColor(canvas1, 2, 3, Color4(1, 0, 0, 1), "drawing a pixel results in that pixel getting colored.");
 
-	// Save the canvas to a PPM file
-	canvas1.SaveToPPM("../output.ppm", "P3");
+	Save the canvas to a PPM file canvas1.SaveToPPM("../output.ppm", "P3");
 
 	// load the canvas
 	canvas2 = LoadPPM("../output.ppm");

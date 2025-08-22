@@ -7,7 +7,7 @@ set(CMAKE_CXX_COMPILER "g++.exe")
 project(Raytracer)
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS "-Wall -O0 -g -static-libgcc -static-libstdc++")
+set(CMAKE_CXX_FLAGS "-Wall -O0 -g -static-libgcc -static-libstdc++ -mconsole")
 
 # SDL2
 set(SDL2_DIR ${CMAKE_CURRENT_LIST_DIR}/lib/SDL2/cmake/)
@@ -45,6 +45,7 @@ set(MIRT_CORE_SOURCES
     src/Canvas.cpp 
     src/Color4.cpp 
     src/Material.cpp
+    src/OpenGLLayer.cpp
     src/Ray.cpp 
     src/RayHit.cpp 
     src/Renderer.cpp 
@@ -52,22 +53,27 @@ set(MIRT_CORE_SOURCES
     src/PointLight.cpp
     src/Vec4.cpp 
     src/Window.cpp
+    src/ShaderProgram.cpp
+    src/ShaderLoader.cpp
 )
 
 add_library(MIRT_CORE STATIC ${MIRT_CORE_SOURCES})
+# add imgui's includes so make doesn't complain about them in Window.cpp
 target_include_directories(MIRT_CORE PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include 
                                             ${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui 
                                             ${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui/backends 
-                                            ${SDL2_INCLUDE_DIRS})# add imgui's includes so make doesn't complain about them in Window.cpp
+                                            ${SDL2_INCLUDE_DIRS}
+                                            ${CMAKE_CURRENT_SOURCE_DIR}/lib/glad/include)
+
 
 add_library(MIRT_DEPS INTERFACE)
 target_link_libraries(MIRT_DEPS INTERFACE
-    glad_lib 
     glm_lib 
     imgui_lib 
     SDL2::SDL2main 
     SDL2::SDL2 
     OpenGL::GL
+    glad_lib 
 )
 
 # this is for the test binaries, they do not use SDL, so no sdl linking
@@ -82,6 +88,7 @@ target_link_libraries(MIRT_TEST_DEPS PUBLIC
 
 add_executable(raytracer src/main.cpp)
 target_link_libraries(raytracer MIRT_CORE MIRT_DEPS)
+set_target_properties(raytracer PROPERTIES LINK_FLAGS "-mconsole")
 
 #### for testing ####
 enable_testing()
