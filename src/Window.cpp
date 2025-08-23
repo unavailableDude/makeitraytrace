@@ -101,7 +101,7 @@ void Window::DrawGUI() {
 
 	// Viewport frame
 	ImGui::Begin("Viewport");
-	ImGui::Image((ImTextureID)_renderer->GetFrameBufferID(), ImVec2(_width, _height));
+	ImGui::Image((ImTextureID)_renderer->GetFrameBufferID(), ImVec2(_renderer->GetWidth(), _renderer->GetHeight()));
 	ImGui::End();
 
 	ImGui::Render();

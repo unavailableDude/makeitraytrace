@@ -55,6 +55,7 @@ set(MIRT_CORE_SOURCES
     src/Window.cpp
     src/ShaderProgram.cpp
     src/ShaderLoader.cpp
+    src/ComputeShaderProgram.cpp
 )
 
 add_library(MIRT_CORE STATIC ${MIRT_CORE_SOURCES})
@@ -78,7 +79,9 @@ target_link_libraries(MIRT_DEPS INTERFACE
 
 # this is for the test binaries, they do not use SDL, so no sdl linking
 add_library(MIRT_TEST_DEPS STATIC ${MIRT_CORE_SOURCES})
-target_include_directories(MIRT_TEST_DEPS PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(MIRT_TEST_DEPS PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include 
+                                                 ${SDL2_INCLUDE_DIRS}
+                                                 ${CMAKE_CURRENT_SOURCE_DIR}/lib/glad/include)
 target_link_libraries(MIRT_TEST_DEPS PUBLIC 
     glad_lib 
     glm_lib 
@@ -101,7 +104,11 @@ foreach(test_file ${TEST_SOURCES})
     get_filename_component(test_name ${test_file} NAME_WE)
     # Create executable
     add_executable(${test_name} ${test_file})
-    target_link_libraries(${test_name} MIRT_TEST_DEPS)
+    if(test_name STREQUAL "test_Renderer")
+        target_link_libraries(${test_name} MIRT_TEST_DEPS SDL2::SDL2main SDL2::SDL2)
+    else()
+        target_link_libraries(${test_name} MIRT_TEST_DEPS)
+    endif()
 	# Set output directory to build/tests
     set_target_properties(${test_name} PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests

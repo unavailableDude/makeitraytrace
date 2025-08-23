@@ -1,9 +1,9 @@
-#version 410 core
-out vec4 FragColor;
-
+#version 430 core
+layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+layout(rgba32f, binding = 0) uniform image2D colorBuffer;
 
 // constants and uniforms
-const vec2 resolution = vec2(400.0, 400.0);
+const vec2 resolution = vec2(600.0, 400.0);
 const float aspectRatio = resolution.x / resolution.y;
 
 // structures
@@ -85,8 +85,17 @@ mat4 TranslationMatrix(vec3 translation){
     return mat;
 }
 
-void main(){
-    Sphere sphere1;
+void main() {
+	ivec2 pixelPos = ivec2(gl_GlobalInvocationID.xy);
+	ivec2 screenSize = imageSize(colorBuffer);
+
+	if(pixelPos.x >= screenSize.x || pixelPos.y >= screenSize.y) {
+		return;
+	}
+
+	vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
+
+	Sphere sphere1;
     sphere1._transform = IdentityMatrix();
     sphere1._material = Material(vec4(1.0, 0.0, 0.0, 1.0), 0.1, 0.8, 0.5, 32.0);
     sphere1._id = 0;
@@ -101,7 +110,7 @@ void main(){
     Ray ray;
     ray.origin = vec4(0.0, 0.0, 2.0, 1.0);
 
-    vec2 uv = ((gl_FragCoord.xy / resolution.xy) * 2.0) - 1.0;
+    vec2 uv = ((pixelPos.xy / resolution.xy) * 2.0) - 1.0;
 
     ray.direction = vec4(uv.x * aspectRatio, uv.y, -1.0, 0.0);
 
@@ -110,8 +119,10 @@ void main(){
     hits[1] = IntersectRaySphere(ray, spheres[1]);
 
     if (hits[0]._valid) {
-        FragColor = vec4(spheres[hits[0]._objectID]._material._surfaceColor.rgb, 1.0);
+        color = vec4(spheres[hits[0]._objectID]._material._surfaceColor.rgb, 1.0);
     } else {
-        FragColor = vec4(uv.xy, 0.0, 1.0);
+        color = vec4(uv.xy, 0.0, 1.0);
     }
+
+	imageStore(colorBuffer, pixelPos, color);
 }

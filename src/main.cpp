@@ -17,8 +17,8 @@
 #include "OpenGLLayer.hpp"
 
 
-const int SCRW = 640;
-const int SCRH = 480;
+const int SCRW = 800;
+const int SCRH = 600;
 
 
 int main(int argc, char* argv[]) {

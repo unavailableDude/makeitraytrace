@@ -7,6 +7,7 @@
 #include "glad/glad.h"
 
 #include "ShaderProgram.hpp"
+#include "ComputeShaderProgram.hpp"
 
 
 namespace MIRT {
@@ -33,8 +34,9 @@ private:
 	unsigned int _fbo;
 	unsigned int _colorTexture;
 	unsigned int _vao;
-	unsigned int _vbo;// to hold 4 vertices for the 2 triangles that will span the whole viewport
-	ShaderProgram _shaderProgram;
+	unsigned int _vbo;                         // to hold 4 vertices for the 2 triangles that will span the whole viewport
+	ShaderProgram _shaderProgram;              // for the vert/fragment shader
+	ComputeShaderProgram _computeShaderProgram;// for the compute shader
 };
 
 }// namespace MIRT

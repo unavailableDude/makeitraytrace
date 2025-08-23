@@ -13,8 +13,11 @@
 #include "RayHit.hpp"
 #include "Vec4.hpp"
 #include "PointLight.hpp"
+#include "OpenGLLayer.hpp"
 
 #include "ShaderLoader.hpp"
+
+#include "CommonMacros.hpp"
 
 
 namespace MIRT {
@@ -27,7 +30,8 @@ Renderer::Renderer(uint16_t width = 480, uint16_t height = 320)
     : _width(width),
       _height(height),
       _aspectRatio(float(width) / float(height)),
-      _shaderProgram("../Shaders/VertexShader1.vert", "../Shaders/FragmentShader1.frag") {}
+      _shaderProgram("../Shaders/VertexShader1.vert", "../Shaders/FragmentShader1.frag"),
+      _computeShaderProgram("../Shaders/RaytracerCompute1.comp") {}
 
 void Renderer::MakeArt() {
 	// // create sphere in the middle
@@ -80,17 +84,24 @@ void Renderer::MakeArt() {
 	// std::chrono::duration<float, std::milli> renderDuration = renderEndTime - renderStartTime;
 	// std::cout << "Render time: " << renderDuration.count() << " ms" << std::endl;
 
-	glDisable(GL_CULL_FACE);
-	glDisable(GL_DEPTH_TEST);
-	glBindFramebuffer(GL_FRAMEBUFFER, _fbo);
-	glViewport(0, 0, _width, _height);
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	GLCALL(glDisable(GL_CULL_FACE);)
+	GLCALL(glDisable(GL_DEPTH_TEST);)
+	GLCALL(glBindFramebuffer(GL_FRAMEBUFFER, _fbo);)
+	GLCALL(glViewport(0, 0, _width, _height);)
+	GLCALL(glClearColor(0.0f, 0.0f, 0.0f, 1.0f);)
+	GLCALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);)
 
+	// raytrace, compute the pixels
+	_computeShaderProgram.Use();
+	GLCALL(glBindImageTexture(0, _colorTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);)
+	GLCALL(glDispatchCompute(_width, _height, 1);)
+	GLCALL(glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);)
+
+	// draw the screen, (update the output basically)
 	_shaderProgram.Use();
-	glBindVertexArray(_vao);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	GLCALL(glBindVertexArray(_vao);)
+	GLCALL(glDrawArrays(GL_TRIANGLES, 0, 6);)
+	GLCALL(glBindFramebuffer(GL_FRAMEBUFFER, 0);)
 }
 
 bool Renderer::PreparePipeline() {
@@ -113,11 +124,7 @@ bool Renderer::PreparePipeline() {
 	glGenFramebuffers(1, &_fbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, _fbo);
 
-	glGenTextures(1, &_colorTexture);
-	glBindTexture(GL_TEXTURE_2D, _colorTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _width, _height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	OpenGLLayer::CreateTexture(_width, _height, _colorTexture);
 
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _colorTexture, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -132,10 +139,15 @@ bool Renderer::PreparePipeline() {
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), nullptr);
 	glEnableVertexAttribArray(0);
 
-	_shaderProgram = ShaderProgram("../Shaders/VertexShader2.vert", "../Shaders/FragmentShader2.frag");
+	_shaderProgram = ShaderProgram("../Shaders/VertexShader1.vert", "../Shaders/FragmentShader1.frag");
 	_shaderProgram.cookThatShader();
 	_shaderProgram.LogInfo();
 	_shaderProgram.Use();
+
+	_computeShaderProgram = ComputeShaderProgram("../Shaders/RaytracerCompute1.comp");
+	_computeShaderProgram.cookThatShader();
+	_computeShaderProgram.LogInfo();
+	_computeShaderProgram.Use();
 
 	return true;
 }

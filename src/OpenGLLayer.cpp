@@ -1,6 +1,7 @@
 #include "OpenGLLayer.hpp"
-#include "SDL.h"
 
+#include "CommonMacros.hpp"
+#include "SDL.h"
 
 #include <iostream>
 
@@ -59,6 +60,20 @@ bool OpenGLLayer::LoadImageToBuffer(Canvas& canvas, GLuint& textureID) {
 
 	textureID = imageTexture;
 	return true;
+}
+
+bool OpenGLLayer::CreateTexture(uint16_t width, uint16_t height, GLuint& textureID) {
+	GLuint id;
+	bool ret = false;
+	GLCALL(glGenTextures(1, &id);)
+	GLCALL(glBindTexture(GL_TEXTURE_2D, id);)
+	GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);)
+	GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);)
+	GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);)
+	GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);)
+	GLCALL(glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F, width, height);)
+	textureID = id;
+	return (ret = true);
 }
 
 }// namespace MIRT
