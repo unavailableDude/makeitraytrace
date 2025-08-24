@@ -56,6 +56,7 @@ set(MIRT_CORE_SOURCES
     src/ShaderProgram.cpp
     src/ShaderLoader.cpp
     src/ComputeShaderProgram.cpp
+    src/Camera.cpp
 )
 
 add_library(MIRT_CORE STATIC ${MIRT_CORE_SOURCES})

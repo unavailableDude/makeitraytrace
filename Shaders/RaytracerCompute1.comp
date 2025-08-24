@@ -1,10 +1,13 @@
 #version 430 core
-layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 layout(rgba32f, binding = 0) uniform image2D colorBuffer;
 
 // constants and uniforms
-const vec2 resolution = vec2(600.0, 400.0);
-const float aspectRatio = resolution.x / resolution.y;
+
+layout(location = 0) uniform vec2 uImageSize;
+layout(location = 1) uniform int uNumSpheres;
+
+float aspectRatio = uImageSize.x / uImageSize.y;
 
 // structures
 struct Material{
@@ -16,34 +19,94 @@ struct Material{
 };
 
 struct Sphere{
-    mat4 _transform;
     Material _material;
+    mat4 _transform;
     int _id;
+    float _padding[7];
+};
+
+struct Camera{
+    vec4 _position;
+    vec4 _forward;
+    vec4 _right;
+    vec4 _up;
+};
+
+layout(std430, binding = 1) readonly buffer Spheres {
+    Sphere spheres[];
+};
+
+layout(std430, binding = 2) readonly buffer CameraData {
+    Camera camera;
 };
 
 struct Ray{
     vec4 origin;
     vec4 direction;
 };
-vec4 RayPositionAtT(Ray ray, float t) {
-    return vec4(ray.origin.xyz + (t * ray.direction.xyz), 1.0);
-}
+vec4 RayPositionAtT(Ray ray, float t);
+Ray ApplyMatrixToRay(Ray r, mat4 m);
 
 struct RayHit{
     bool _valid;
-	float[2] _t;
-	vec4[2] _hitPoint;
+	float _t;
+	vec4 _hitPoint;
 	// vec4 _normal;
-	int _objectID;
+	uint _objectID;
 };
+
+RayHit IntersectRaySphere(Ray ray, Sphere sphere);
+
+
+void main() {
+	ivec2 pixelPos = ivec2(gl_GlobalInvocationID.xy);
+	ivec2 screenSize = imageSize(colorBuffer);
+
+	if(pixelPos.x >= screenSize.x || pixelPos.y >= screenSize.y) {
+		return;
+	}
+
+	vec4 color = vec4(0.2, 0.2, 0.2, 1.0);
+
+    Ray ray;
+    ray.origin = camera._position;
+
+    vec2 uv = ((pixelPos.xy / uImageSize.xy) * 2.0) - 1.0;
+
+    ray.direction = vec4(uv.x * aspectRatio, uv.y, -1.0, 0.0);
+
+    RayHit hits[32];// number of spheres
+    for(int i = 0; i < uNumSpheres; i++) {
+        hits[i] = IntersectRaySphere(ray, spheres[i]);
+    }
+
+    RayHit closestHit;
+    closestHit._t = 10000.0;
+    for(int i = 0; i < uNumSpheres; i++) {
+        if(hits[i]._valid && (hits[i]._t < closestHit._t) && hits[i]._t < 10000.0) {
+            closestHit = hits[i];
+        }
+    }
+    if(closestHit._valid && closestHit._t < 900.0) {
+        color = spheres[closestHit._objectID]._material._surfaceColor;
+    }
+
+	imageStore(colorBuffer, pixelPos, color);
+}
+
+
+vec4 RayPositionAtT(Ray ray, float t) {
+    return vec4(ray.origin.xyz + (t * ray.direction.xyz), 1.0);
+}
 
 RayHit IntersectRaySphere(Ray ray, Sphere sphere) {
     RayHit hit;
     hit._valid = false;
 
-    vec4 oc = vec4(ray.origin) - vec4(0.0);
-    float a = dot(ray.direction.xyz, ray.direction.xyz);
-    float b = 2.0 * dot(oc.xyz, ray.direction.xyz);
+    Ray transformedRay = ApplyMatrixToRay(ray, inverse(sphere._transform));
+    vec4 oc = vec4(transformedRay.origin) - sphere._transform[3];
+    float a = dot(transformedRay.direction.xyz, transformedRay.direction.xyz);
+    float b = 2.0 * dot(oc.xyz, transformedRay.direction.xyz);
     float c = dot(oc.xyz, oc.xyz) - (1.0);
     float discriminant = (b * b) - (4.0 * (a * c));
 
@@ -54,75 +117,22 @@ RayHit IntersectRaySphere(Ray ray, Sphere sphere) {
     // Calculate the two intersection points
 	float sqrtDiscriminant = sqrt(discriminant);
 	float t1 = (-b - sqrtDiscriminant) / (2.0 * a);
-	float t2 = (-b + sqrtDiscriminant) / (2.0 * a);
 
-    vec4 point1 = RayPositionAtT(ray, t1);
-	vec4 point2 = RayPositionAtT(ray, t2);
+    vec4 point1 = RayPositionAtT(transformedRay, t1);
 
-    hit._t[0] = t1;
-    hit._t[1] = t2;
-    hit._hitPoint[0] = point1;
-    hit._hitPoint[1] = point2;
+    hit._t = t1;
+    hit._hitPoint = point1;
     hit._valid = true;
     hit._objectID = sphere._id;
     return hit;
 }
 
-mat4 IdentityMatrix(){
-     mat4 mat = mat4(0.0);
-     mat[0][0] = 1.0;
-     mat[1][1] = 1.0;
-     mat[2][2] = 1.0;
-     mat[3][3] = 1.0;
-     return mat;
-}
+Ray ApplyMatrixToRay(Ray r, mat4 m) {
+	// Apply the transformation matrix to the ray's origin and direction
+	vec4 origin = r.origin;
+	vec4 direction = r.direction;
+	vec4 newOrigin = vec4(origin.x, origin.y, origin.z, origin.w) * m;
+	vec4 newDirection = vec4(direction.x, direction.y, direction.z, direction.w) * m;
 
-mat4 TranslationMatrix(vec3 translation){
-    mat4 mat = IdentityMatrix();
-    mat[3][0] = translation.x;
-    mat[3][1] = translation.y;
-    mat[3][2] = translation.z;
-    return mat;
-}
-
-void main() {
-	ivec2 pixelPos = ivec2(gl_GlobalInvocationID.xy);
-	ivec2 screenSize = imageSize(colorBuffer);
-
-	if(pixelPos.x >= screenSize.x || pixelPos.y >= screenSize.y) {
-		return;
-	}
-
-	vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
-
-	Sphere sphere1;
-    sphere1._transform = IdentityMatrix();
-    sphere1._material = Material(vec4(1.0, 0.0, 0.0, 1.0), 0.1, 0.8, 0.5, 32.0);
-    sphere1._id = 0;
-
-    Sphere sphere2;
-    sphere2._transform = IdentityMatrix() * TranslationMatrix(vec3(1.0, 0.0, -0.1));
-    sphere2._material = Material(vec4(0.0, 1.0, 0.0, 1.0), 0.1, 0.8, 0.5, 32.0);
-    sphere2._id = 1;
-
-    Sphere spheres[] = Sphere[2](sphere1, sphere2);
-
-    Ray ray;
-    ray.origin = vec4(0.0, 0.0, 2.0, 1.0);
-
-    vec2 uv = ((pixelPos.xy / resolution.xy) * 2.0) - 1.0;
-
-    ray.direction = vec4(uv.x * aspectRatio, uv.y, -1.0, 0.0);
-
-    RayHit hits[2];
-    hits[0] = IntersectRaySphere(ray, spheres[0]);
-    hits[1] = IntersectRaySphere(ray, spheres[1]);
-
-    if (hits[0]._valid) {
-        color = vec4(spheres[hits[0]._objectID]._material._surfaceColor.rgb, 1.0);
-    } else {
-        color = vec4(uv.xy, 0.0, 1.0);
-    }
-
-	imageStore(colorBuffer, pixelPos, color);
+	return Ray(vec4(newOrigin), vec4(newDirection));
 }

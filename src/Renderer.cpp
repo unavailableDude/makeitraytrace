@@ -1,7 +1,6 @@
 #include "../include/Renderer.hpp"
 
 #include <iostream>
-#include <chrono>
 #include <math.h>
 
 // glm
@@ -30,8 +29,10 @@ Renderer::Renderer(uint16_t width = 480, uint16_t height = 320)
     : _width(width),
       _height(height),
       _aspectRatio(float(width) / float(height)),
+      _numSpheres(0),
       _shaderProgram("../Shaders/VertexShader1.vert", "../Shaders/FragmentShader1.frag"),
-      _computeShaderProgram("../Shaders/RaytracerCompute1.comp") {}
+      _computeShaderProgram("../Shaders/RaytracerCompute1.comp"),
+      _lastFrameDeltaTime(0) {}
 
 void Renderer::MakeArt() {
 	// // create sphere in the middle
@@ -49,7 +50,6 @@ void Renderer::MakeArt() {
 	// Material materialBG = Material();
 	// materialBG.SetSurfaceColor(Color4(0.2f, 0.2f, 0.2f, 1.0f));
 
-	// auto renderStartTime = std::chrono::high_resolution_clock::now();
 
 	// // draw
 	// std::vector<Color4> pixels(_width * _height, Color4(1.0f, 0.0f, 1.0f, 1.0f));
@@ -80,10 +80,8 @@ void Renderer::MakeArt() {
 	// 		pixels[y * _width + x] = currColor;
 	// 	}
 	// }
-	// auto renderEndTime = std::chrono::high_resolution_clock::now();
-	// std::chrono::duration<float, std::milli> renderDuration = renderEndTime - renderStartTime;
-	// std::cout << "Render time: " << renderDuration.count() << " ms" << std::endl;
 
+	auto renderStartTime = std::chrono::high_resolution_clock::now();
 	GLCALL(glDisable(GL_CULL_FACE);)
 	GLCALL(glDisable(GL_DEPTH_TEST);)
 	GLCALL(glBindFramebuffer(GL_FRAMEBUFFER, _fbo);)
@@ -93,8 +91,15 @@ void Renderer::MakeArt() {
 
 	// raytrace, compute the pixels
 	_computeShaderProgram.Use();
+	_computeShaderProgram.SetUniform2f("uImageSize", Vec4(float(_width), float(_height), 0.0f, 0.0f));
+	_computeShaderProgram.SetUniform1i("uNumSpheres", _numSpheres);
+
+	// GLCALL(glBindBuffer(GL_SHADER_STORAGE_BUFFER, _SphereSSBO));
+	// GLCALL(glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Sphere) * _spheres.size(), _spheres.data(), GL_DYNAMIC_READ));
+	// GLCALL(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, _SphereSSBO));
+	// GLCALL(glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(Sphere) * _spheres.size(), _spheres.data()));
 	GLCALL(glBindImageTexture(0, _colorTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);)
-	GLCALL(glDispatchCompute(_width, _height, 1);)
+	GLCALL(glDispatchCompute(_width / 8, _height / 8, 1);)
 	GLCALL(glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);)
 
 	// draw the screen, (update the output basically)
@@ -102,6 +107,9 @@ void Renderer::MakeArt() {
 	GLCALL(glBindVertexArray(_vao);)
 	GLCALL(glDrawArrays(GL_TRIANGLES, 0, 6);)
 	GLCALL(glBindFramebuffer(GL_FRAMEBUFFER, 0);)
+
+	auto renderEndTime = std::chrono::high_resolution_clock::now();
+	_lastFrameDeltaTime = renderEndTime - renderStartTime;
 }
 
 bool Renderer::PreparePipeline() {
@@ -121,33 +129,80 @@ bool Renderer::PreparePipeline() {
 	};
 
 	// setup frame buffer
-	glGenFramebuffers(1, &_fbo);
-	glBindFramebuffer(GL_FRAMEBUFFER, _fbo);
+	GLCALL(glGenFramebuffers(1, &_fbo);)
+	GLCALL(glBindFramebuffer(GL_FRAMEBUFFER, _fbo);)
 
 	OpenGLLayer::CreateTexture(_width, _height, _colorTexture);
 
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _colorTexture, 0);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	GLCALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _colorTexture, 0);)
+	GLCALL(glBindFramebuffer(GL_FRAMEBUFFER, 0);)
 
-	glGenVertexArrays(1, &_vao);
-	glBindVertexArray(_vao);
+	GLCALL(glGenVertexArrays(1, &_vao);)
+	GLCALL(glBindVertexArray(_vao);)
 
-	glGenBuffers(1, &_vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, _vbo);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), vertices.data(), GL_STATIC_DRAW);
+	GLCALL(glGenBuffers(1, &_vbo);)
+	GLCALL(glBindBuffer(GL_ARRAY_BUFFER, _vbo);)
+	GLCALL(glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), vertices.data(), GL_STATIC_DRAW);)
 
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), nullptr);
-	glEnableVertexAttribArray(0);
+	GLCALL(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), nullptr);)
+	GLCALL(glEnableVertexAttribArray(0);)
 
 	_shaderProgram = ShaderProgram("../Shaders/VertexShader1.vert", "../Shaders/FragmentShader1.frag");
 	_shaderProgram.cookThatShader();
 	_shaderProgram.LogInfo();
 	_shaderProgram.Use();
 
+	_numSpheres = 32;
 	_computeShaderProgram = ComputeShaderProgram("../Shaders/RaytracerCompute1.comp");
 	_computeShaderProgram.cookThatShader();
 	_computeShaderProgram.LogInfo();
 	_computeShaderProgram.Use();
+	_computeShaderProgram.SetUniform2f("uImageSize", Vec4(float(_width), float(_height), 0.0f, 0.0f));
+	_computeShaderProgram.SetUniform1i("uNumSpheres", _numSpheres);
+
+	// prepare sphere data
+	srand(static_cast<unsigned int>(time(nullptr)));
+	for(int i = 0; i < _numSpheres; ++i) {
+		// pick a random position from [-5, 5]
+		float x = static_cast<float>((rand() / static_cast<float>(RAND_MAX)) * 10.0f) - 5.0f;
+		float y = static_cast<float>((rand() / static_cast<float>(RAND_MAX)) * 10.0f) - 5.0f;
+		float z = static_cast<float>((rand() / static_cast<float>(RAND_MAX)) * 2.0f) - 1.0f;
+		float scaleFactorX = static_cast<float>((rand() / static_cast<float>(RAND_MAX)) * 2.0f);
+		float scaleFactorY = static_cast<float>((rand() / static_cast<float>(RAND_MAX)) * 2.0f);
+		float scaleFactorZ = static_cast<float>((rand() / static_cast<float>(RAND_MAX)) * 2.0f);
+		glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(x, y, z));
+		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(scaleFactorX, scaleFactorY, scaleFactorZ));
+		glm::mat4 transform = translation * scale;
+		Material material;
+		material.SetAmbient(0.1f);
+		material.SetDiffuse(0.9f);
+		material.SetSpecular(0.9f);
+		material.SetShininess(32.0f);
+		material.SetSurfaceColor(Color4(static_cast<float>(rand()) / static_cast<float>(RAND_MAX),
+		                                static_cast<float>(rand()) / static_cast<float>(RAND_MAX),
+		                                static_cast<float>(rand()) / static_cast<float>(RAND_MAX),
+		                                1.0f));
+		_spheres.emplace_back(transform, material, i);
+	}
+
+	_sceneCamera = Camera(Vec4(0.0f, 0.0f, 4.0f, 1.0f),
+	                      Vec4(0.0f, 0.0f, -1.0f, 0.0f),
+	                      Vec4(1.0f, 0.0f, 0.0f, 0.0f),
+	                      Vec4(0.0f, 1.0f, 0.0f, 0.0f));
+
+	// prepare ssbo
+	GLCALL(glGenBuffers(1, &_SphereSSBO));
+	GLCALL(glBindBuffer(GL_SHADER_STORAGE_BUFFER, _SphereSSBO));
+	GLCALL(glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Sphere) * _spheres.size(), _spheres.data(), GL_DYNAMIC_READ));
+	GLCALL(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, _SphereSSBO));
+	GLCALL(glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(Sphere) * _spheres.size(), _spheres.data()));
+	GLCALL(glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0));
+
+	GLCALL(glBindBuffer(GL_SHADER_STORAGE_BUFFER, _cameraSSBO));
+	GLCALL(glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Camera), &_sceneCamera, GL_DYNAMIC_READ));
+	GLCALL(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, _cameraSSBO));
+	GLCALL(glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(Camera), &_sceneCamera));
+	GLCALL(glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0));
 
 	return true;
 }
@@ -175,6 +230,7 @@ Color4 ComputeLighting(const RayHit& rayHit, const PointLight& light, const Vec4
 uint16_t Renderer::GetWidth() const { return _width; }
 uint16_t Renderer::GetHeight() const { return _height; }
 unsigned int Renderer::GetFrameBufferID() const { return _colorTexture; }
+std::chrono::duration<float, std::milli> Renderer::GetLastFrameDeltaTime() const { return _lastFrameDeltaTime; }
 
 void Renderer::SetImageDimensions(uint16_t width, uint16_t height) {
 	_width = width;

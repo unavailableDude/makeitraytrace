@@ -96,7 +96,8 @@ void Window::DrawGUI() {
 
 	// Debug frame
 	ImGui::Begin("Debug Info");
-	ImGui::Text("Render Time: xx ms");
+	ImGui::Text("Frame Time: %.3f ms", _renderer->GetLastFrameDeltaTime().count());
+	ImGui::Text("FPS: %.1f", 1000.0f / _renderer->GetLastFrameDeltaTime().count());
 	ImGui::End();
 
 	// Viewport frame
