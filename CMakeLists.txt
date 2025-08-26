@@ -42,21 +42,22 @@ target_link_libraries(imgui_lib PUBLIC glad_lib)
 
 # MIRT core library
 set(MIRT_CORE_SOURCES 
+    src/Camera.cpp
     src/Canvas.cpp 
     src/Color4.cpp 
+    src/ComputeShaderProgram.cpp
     src/Material.cpp
     src/OpenGLLayer.cpp
     src/Ray.cpp 
     src/RayHit.cpp 
     src/Renderer.cpp 
+    src/Scene.cpp
+    src/ShaderLoader.cpp
+    src/ShaderProgram.cpp
     src/Sphere.cpp 
     src/PointLight.cpp
     src/Vec4.cpp 
     src/Window.cpp
-    src/ShaderProgram.cpp
-    src/ShaderLoader.cpp
-    src/ComputeShaderProgram.cpp
-    src/Camera.cpp
 )
 
 add_library(MIRT_CORE STATIC ${MIRT_CORE_SOURCES})

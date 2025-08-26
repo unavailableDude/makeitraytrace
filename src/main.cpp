@@ -15,6 +15,7 @@
 #include "../include/Renderer.hpp"
 #include "../include/Window.hpp"
 #include "OpenGLLayer.hpp"
+#include "Scene.hpp"
 
 
 const int SCRW = 800;
@@ -24,7 +25,12 @@ const int SCRH = 600;
 int main(int argc, char* argv[]) {
 	MIRT::Window window1("raytracer 0.05", SCRW, SCRH);
 
+	MIRT::Scene scene = MIRT::Scene();
+	scene.SetDefaultCamera();
+	scene.GenerateRandomSpheres(32);
+
 	MIRT::Renderer artist(600, 400);
+	artist.SetCurrentScene(scene);
 	artist.PreparePipeline();
 
 	window1.SetRenderer(&artist);

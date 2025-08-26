@@ -22,6 +22,8 @@ public:
 	void SetRight(const Vec4& right);
 	void SetUp(const Vec4& up);
 
+	std::vector<Vec4> GetCameraVectors() const;
+
 private:
 	Vec4 _position;
 	Vec4 _forward;

@@ -22,5 +22,6 @@ void Camera::SetForward(const Vec4& forward) { _forward = forward; }
 void Camera::SetRight(const Vec4& right) { _right = right; }
 void Camera::SetUp(const Vec4& up) { _up = up; }
 
+std::vector<Vec4> Camera::GetCameraVectors() const { return {_position, _forward, _right, _up}; }
 
 }// namespace MIRT

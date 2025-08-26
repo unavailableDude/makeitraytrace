@@ -29,7 +29,6 @@ Renderer::Renderer(uint16_t width = 480, uint16_t height = 320)
     : _width(width),
       _height(height),
       _aspectRatio(float(width) / float(height)),
-      _numSpheres(0),
       _shaderProgram("../Shaders/VertexShader1.vert", "../Shaders/FragmentShader1.frag"),
       _computeShaderProgram("../Shaders/RaytracerCompute1.comp"),
       _lastFrameDeltaTime(0) {}
@@ -92,12 +91,13 @@ void Renderer::MakeArt() {
 	// raytrace, compute the pixels
 	_computeShaderProgram.Use();
 	_computeShaderProgram.SetUniform2f("uImageSize", Vec4(float(_width), float(_height), 0.0f, 0.0f));
-	_computeShaderProgram.SetUniform1i("uNumSpheres", _numSpheres);
+	_computeShaderProgram.SetUniform1i("uNumSpheres", _currentScene.GetSpheres().size());
 
 	// GLCALL(glBindBuffer(GL_SHADER_STORAGE_BUFFER, _SphereSSBO));
-	// GLCALL(glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Sphere) * _spheres.size(), _spheres.data(), GL_DYNAMIC_READ));
-	// GLCALL(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, _SphereSSBO));
-	// GLCALL(glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(Sphere) * _spheres.size(), _spheres.data()));
+	// GLCALL(glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Sphere) * _currentScene.GetSpheres().size(),
+	// _currentScene.GetSpheres().data(), GL_DYNAMIC_READ)); GLCALL(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1,
+	// _SphereSSBO)); GLCALL(glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(Sphere) * _currentScene.GetSpheres().size(),
+	// _currentScene.GetSpheres().data()));
 	GLCALL(glBindImageTexture(0, _colorTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);)
 	GLCALL(glDispatchCompute(_width / 8, _height / 8, 1);)
 	GLCALL(glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);)
@@ -152,60 +152,45 @@ bool Renderer::PreparePipeline() {
 	_shaderProgram.LogInfo();
 	_shaderProgram.Use();
 
-	_numSpheres = 32;
 	_computeShaderProgram = ComputeShaderProgram("../Shaders/RaytracerCompute1.comp");
 	_computeShaderProgram.cookThatShader();
 	_computeShaderProgram.LogInfo();
 	_computeShaderProgram.Use();
 	_computeShaderProgram.SetUniform2f("uImageSize", Vec4(float(_width), float(_height), 0.0f, 0.0f));
-	_computeShaderProgram.SetUniform1i("uNumSpheres", _numSpheres);
+	_computeShaderProgram.SetUniform1i("uNumSpheres", _currentScene.GetSpheres().size());
 
 	// prepare sphere data
-	srand(static_cast<unsigned int>(time(nullptr)));
-	for(int i = 0; i < _numSpheres; ++i) {
-		// pick a random position from [-5, 5]
-		float x = static_cast<float>((rand() / static_cast<float>(RAND_MAX)) * 10.0f) - 5.0f;
-		float y = static_cast<float>((rand() / static_cast<float>(RAND_MAX)) * 10.0f) - 5.0f;
-		float z = static_cast<float>((rand() / static_cast<float>(RAND_MAX)) * 2.0f) - 1.0f;
-		float scaleFactorX = static_cast<float>((rand() / static_cast<float>(RAND_MAX)) * 2.0f);
-		float scaleFactorY = static_cast<float>((rand() / static_cast<float>(RAND_MAX)) * 2.0f);
-		float scaleFactorZ = static_cast<float>((rand() / static_cast<float>(RAND_MAX)) * 2.0f);
-		glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(x, y, z));
-		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(scaleFactorX, scaleFactorY, scaleFactorZ));
-		glm::mat4 transform = translation * scale;
-		Material material;
-		material.SetAmbient(0.1f);
-		material.SetDiffuse(0.9f);
-		material.SetSpecular(0.9f);
-		material.SetShininess(32.0f);
-		material.SetSurfaceColor(Color4(static_cast<float>(rand()) / static_cast<float>(RAND_MAX),
-		                                static_cast<float>(rand()) / static_cast<float>(RAND_MAX),
-		                                static_cast<float>(rand()) / static_cast<float>(RAND_MAX),
-		                                1.0f));
-		_spheres.emplace_back(transform, material, i);
-	}
 
-	_sceneCamera = Camera(Vec4(0.0f, 0.0f, 4.0f, 1.0f),
-	                      Vec4(0.0f, 0.0f, -1.0f, 0.0f),
-	                      Vec4(1.0f, 0.0f, 0.0f, 0.0f),
-	                      Vec4(0.0f, 1.0f, 0.0f, 0.0f));
 
-	// prepare ssbo
+	// prepare ssbo for sphere data
 	GLCALL(glGenBuffers(1, &_SphereSSBO));
 	GLCALL(glBindBuffer(GL_SHADER_STORAGE_BUFFER, _SphereSSBO));
-	GLCALL(glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Sphere) * _spheres.size(), _spheres.data(), GL_DYNAMIC_READ));
+	GLCALL(glBufferData(GL_SHADER_STORAGE_BUFFER,
+	                    sizeof(Sphere) * _currentScene.GetSpheres().size(),
+	                    _currentScene.GetSpheres().data(),
+	                    GL_DYNAMIC_READ));
 	GLCALL(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, _SphereSSBO));
-	GLCALL(glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(Sphere) * _spheres.size(), _spheres.data()));
+	GLCALL(glBufferSubData(GL_SHADER_STORAGE_BUFFER,
+	                       0,
+	                       sizeof(Sphere) * _currentScene.GetSpheres().size(),
+	                       _currentScene.GetSpheres().data()));
 	GLCALL(glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0));
 
+	// prepare ssbo for camera data
+	GLCALL(glGenBuffers(1, &_cameraSSBO));
 	GLCALL(glBindBuffer(GL_SHADER_STORAGE_BUFFER, _cameraSSBO));
-	GLCALL(glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Camera), &_sceneCamera, GL_DYNAMIC_READ));
+	GLCALL(glBufferData(GL_SHADER_STORAGE_BUFFER,
+	                    sizeof(Camera),
+	                    _currentScene.GetCamera().GetCameraVectors().data(),
+	                    GL_DYNAMIC_READ));
 	GLCALL(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, _cameraSSBO));
-	GLCALL(glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(Camera), &_sceneCamera));
+	GLCALL(glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(Camera), _currentScene.GetCamera().GetCameraVectors().data()));
 	GLCALL(glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0));
 
 	return true;
 }
+
+void Renderer::SetCurrentScene(const Scene& scene) { _currentScene = scene; }
 
 Color4 ComputeLighting(const RayHit& rayHit, const PointLight& light, const Vec4& viewDir) {
 	const Material material = rayHit.Object()->GetMaterial();

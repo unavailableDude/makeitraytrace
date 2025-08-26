@@ -11,6 +11,7 @@
 #include "ComputeShaderProgram.hpp"
 #include "Sphere.hpp"
 #include "Camera.hpp"
+#include "Scene.hpp"
 
 
 namespace MIRT {
@@ -22,6 +23,7 @@ public:
 
 	void MakeArt();
 	bool PreparePipeline();
+	void SetCurrentScene(const Scene& scene);
 
 	uint16_t GetWidth() const;
 	uint16_t GetHeight() const;
@@ -40,11 +42,9 @@ private:
 	unsigned int _vao;                         // cool comments bro
 	unsigned int _vbo;                         // to hold 4 vertices for the 2 triangles that will span the whole viewport
 	                                           //
+	Scene _currentScene;                       // the current scene being rendered
 	unsigned int _SphereSSBO;                  // to hold buffer for spheres
-	std::vector<Sphere> _spheres;              // the spheres in the scene
-	uint16_t _numSpheres;                      // number of spheres
 	unsigned int _cameraSSBO;                  // to hold buffer for camera
-	Camera _sceneCamera;                       // the camera for the scene
 	                                           //
 	ShaderProgram _shaderProgram;              // for the vert/fragment shader
 	ComputeShaderProgram _computeShaderProgram;// for the compute shader
