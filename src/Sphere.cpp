@@ -12,6 +12,13 @@ Material Sphere::GetMaterial() const { return _material; }
 void Sphere::SetMaterial(const Material& material) { _material = material; }
 glm::mat4 Sphere::GetTransform() const { return _transform; }
 void Sphere::SetTransform(const glm::mat4& transform) { _transform = transform; }
+void Sphere::SetTransform(const Vec4& position, const Vec4& scale) {
+	glm::mat4 translation = glm::translate(glm::identity<glm::mat4>(), glm::vec3(position._x, position._y, position._z));
+	glm::mat4 scaling = glm::scale(glm::identity<glm::mat4>(), glm::vec3(scale._x, scale._y, scale._z));
+	_transform = glm::transpose(translation * scaling);
+}
+
+void Sphere::SetId(uint32_t id) { _id = id; }
 
 std::vector<RayHit> Sphere::Intersect(const Ray& ray) {
 	std::vector<RayHit> hits;
@@ -65,7 +72,7 @@ Vec4 Sphere::NormalAtPoint(const Vec4& point, bool ignoreW) const {
 	Vec4 osNormal = osPoint - Vec4(0.0f, 0.0f, 0.0f, 1.0f);
 	osNormal._w = 0.0f;
 	osNormal = MakeVec4(glm::transpose(glm::inverse(transformCM)) * MakeGLMVec4(osNormal));
-	osNormal._w = 0.0f;
+	osNormal._w = 0.0f;// now in world space
 	return osNormal.Normalize();
 }
 

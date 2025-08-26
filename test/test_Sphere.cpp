@@ -260,5 +260,10 @@ int main(int argc, char* argv[]) {
 	                   Vec4(-1.0f, -1.0f, 0.0f, 0.0f).Normalize(),
 	                   "Normal of sphere(2, 2, 0) scaled by 2 at point(1, 1, 0) is (-sqrt(2), -sqrt(2), 0)");
 
+	// check sphere transform after setting position and scale
+	// translate by +2 up
+	Sphere sphere5 = Sphere();
+	sphere5.SetTransform(MakePoint(Vec4(1.0f, 2.0f, 3.0f)), MakePoint(Vec4(5.0f, 6.0f, 7.0f)));
+	std::cout << glm::to_string(sphere5.GetTransform()) << std::endl;
 	return 0;
 }

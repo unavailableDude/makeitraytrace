@@ -32,6 +32,8 @@ public:
 
 	void SetImageDimensions(uint16_t width, uint16_t height);
 
+	void Save(const std::string& filename);
+
 private:
 	uint16_t _width;
 	uint16_t _height;
@@ -45,6 +47,7 @@ private:
 	Scene _currentScene;                       // the current scene being rendered
 	unsigned int _SphereSSBO;                  // to hold buffer for spheres
 	unsigned int _cameraSSBO;                  // to hold buffer for camera
+	unsigned int _lightsSSBO;                  // to hold buffer for lights
 	                                           //
 	ShaderProgram _shaderProgram;              // for the vert/fragment shader
 	ComputeShaderProgram _computeShaderProgram;// for the compute shader

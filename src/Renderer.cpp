@@ -159,9 +159,6 @@ bool Renderer::PreparePipeline() {
 	_computeShaderProgram.SetUniform2f("uImageSize", Vec4(float(_width), float(_height), 0.0f, 0.0f));
 	_computeShaderProgram.SetUniform1i("uNumSpheres", _currentScene.GetSpheres().size());
 
-	// prepare sphere data
-
-
 	// prepare ssbo for sphere data
 	GLCALL(glGenBuffers(1, &_SphereSSBO));
 	GLCALL(glBindBuffer(GL_SHADER_STORAGE_BUFFER, _SphereSSBO));
@@ -186,6 +183,15 @@ bool Renderer::PreparePipeline() {
 	GLCALL(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, _cameraSSBO));
 	GLCALL(glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(Camera), _currentScene.GetCamera().GetCameraVectors().data()));
 	GLCALL(glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0));
+
+	// prepare ssbo for lights
+	PointLight light1 = PointLight(Color4(1.0f, 1.0f, 1.0f, 1.0f), Vec4(20.0f, -20.0f, 20.0f, 1.0f));
+	glGenBuffers(1, &_lightsSSBO);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, _lightsSSBO);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(PointLight), light1.GetLightData().data(), GL_DYNAMIC_READ);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, _lightsSSBO);
+	glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(PointLight), light1.GetLightData().data());
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
 	return true;
 }
@@ -221,6 +227,17 @@ void Renderer::SetImageDimensions(uint16_t width, uint16_t height) {
 	_width = width;
 	_height = height;
 	_aspectRatio = float(_width) / float(_height);
+}
+
+void Renderer::Save(const std::string& filename) {
+	Canvas canvas;
+	canvas.SetDimensions(_width, _height);
+
+	GLCALL(glBindTexture(GL_TEXTURE_2D, _colorTexture);)
+	std::vector<Color4> pixels(_width * _height);
+	GLCALL(glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, pixels.data());)
+	canvas.SetPixels(pixels);
+	canvas.SaveToPPM(filename, "P3", true);
 }
 
 }// namespace MIRT

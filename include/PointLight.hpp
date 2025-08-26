@@ -17,6 +17,8 @@ public:
 	Color4 GetIntensity() const;
 	Vec4 GetPosition() const;
 
+	std::vector<Vec4> GetLightData() const;
+
 private:
 	Color4 _intensity;
 	Vec4 _position;

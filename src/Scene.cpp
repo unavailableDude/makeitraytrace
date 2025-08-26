@@ -34,27 +34,31 @@ Camera& Scene::GetCamera() { return _camera; }
 
 
 Sphere GenerateRandom(uint16_t id) {
+	Sphere sphere;
 	// pick a random position from [-5, 5]
 	float x = static_cast<float>((rand() / static_cast<float>(RAND_MAX)) * 10.0f) - 5.0f;
 	float y = static_cast<float>((rand() / static_cast<float>(RAND_MAX)) * 10.0f) - 5.0f;
 	float z = static_cast<float>((rand() / static_cast<float>(RAND_MAX)) * 2.0f) - 1.0f;
-	// scale factor in range [0, 2]
-	float scaleFactorX = static_cast<float>((rand() / static_cast<float>(RAND_MAX)) * 2.0f);
-	float scaleFactorY = static_cast<float>((rand() / static_cast<float>(RAND_MAX)) * 2.0f);
-	float scaleFactorZ = static_cast<float>((rand() / static_cast<float>(RAND_MAX)) * 2.0f);
-	glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(x, y, z));
-	glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(scaleFactorX, scaleFactorY, scaleFactorZ));
-	glm::mat4 transform = translation * scale;// column major, it will be used in compute shader only
+	// scale factor in range [0.5, 1.5]
+	float scaleFactorX = static_cast<float>((rand() / static_cast<float>(RAND_MAX)) + 0.5f);
+	float scaleFactorY = static_cast<float>((rand() / static_cast<float>(RAND_MAX)) + 0.5f);
+	float scaleFactorZ = static_cast<float>((rand() / static_cast<float>(RAND_MAX)) + 0.5f);
+	Vec4 position = Vec4(x, y, z, 1.0f);
+	Vec4 scale = Vec4(scaleFactorX, scaleFactorY, scaleFactorZ, 1.0f);
 	Material material;
 	material.SetAmbient(0.1f);
 	material.SetDiffuse(0.9f);
 	material.SetSpecular(0.9f);
 	material.SetShininess(32.0f);
-	material.SetSurfaceColor(Color4(static_cast<float>(rand()) / static_cast<float>(RAND_MAX),
-	                                static_cast<float>(rand()) / static_cast<float>(RAND_MAX),
-	                                static_cast<float>(rand()) / static_cast<float>(RAND_MAX),
-	                                1.0f));
-	return Sphere(transform, material, id);
+	Color4 color = Color4(((static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) + 1.0f) / 2.0f,
+	                      ((static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) + 1.0f) / 2.0f,
+	                      ((static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) + 1.0f) / 2.0f,
+	                      1.0f);
+	material.SetSurfaceColor(color);
+	sphere.SetTransform(position, scale);
+	sphere.SetMaterial(material);
+	sphere.SetId(id);
+	return sphere;
 }
 
 }// namespace MIRT
