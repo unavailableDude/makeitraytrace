@@ -19,6 +19,7 @@ void Sphere::SetTransform(const Vec4& position, const Vec4& scale) {
 }
 
 void Sphere::SetId(uint32_t id) { _id = id; }
+uint32_t Sphere::GetId() const { return _id; }
 
 std::vector<RayHit> Sphere::Intersect(const Ray& ray) {
 	std::vector<RayHit> hits;

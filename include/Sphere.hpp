@@ -36,6 +36,7 @@ public:
 	void SetTransform(const glm::mat4& transform);
 	void SetTransform(const Vec4& position, const Vec4& scale);
 	void SetId(uint32_t id);
+	uint32_t GetId() const;
 
 	std::vector<RayHit> Intersect(const Ray& ray);
 	Vec4 NormalAtPoint(const Vec4& point, bool ignoreW = false) const;

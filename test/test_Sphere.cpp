@@ -7,6 +7,7 @@
 #include "../include/Vec4.hpp"
 #include "../include/RayHit.hpp"
 #include "../include/Color4.hpp"
+#include "../include/Scene.hpp"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
@@ -70,6 +71,32 @@ int main(int argc, char* argv[]) {
 	} else {
 		std::cout << RED << "Failed! " << "Default material is not created in a default sphere." << RESET << std::endl;
 	}
+
+	// test the ID of a created sphere
+	Sphere sphereIdTest = Sphere();
+	if(sphereIdTest.GetId() == 0) {
+		std::cout << GREEN << "Passed! " << "Sphere ID is initialized to 0." << RESET << std::endl;
+	} else {
+		std::cout << RED << "Failed! " << "Sphere ID is not initialized to 0." << RESET << std::endl;
+	}
+
+	// when setting the Id of a sphere, the Id of that sphere is changed.. duh
+	sphereIdTest.SetId(1523);
+	if(sphereIdTest.GetId() == 1523) {
+		std::cout << GREEN << "Passed! " << "Sphere Id updates to given id." << RESET << std::endl;
+	} else {
+		std::cout << RED << "Failed! " << "Sphere Id did not update to given id." << RESET << std::endl;
+	}
+
+	// when multiple spheres are created, their Ids are incrementally set
+	Scene scene1 = Scene();
+	scene1.GenerateRandomSpheres(4);
+	std::vector<Sphere> sphereIds = scene1.GetSpheres();
+	if((sphereIds[0].GetId() == 0) && (sphereIds[1].GetId() == 1) && (sphereIds[2].GetId() == 2) &&
+	   (sphereIds[3].GetId() == 3))
+		std::cout << GREEN << "Passed! " << "Spheres are created with incremental Ids." << RESET << std::endl;
+	else
+		std::cout << GREEN << "Failed! " << "Spheres are not created with incremental Ids." << RESET << std::endl;
 
 	// this intersection should yield 2 points at (0, 0, -1) and (0, 0, 1), t1 = 4 & t2 = 6
 	Ray ray1 = Ray(MakePoint(Vec4(0.0f, 0.0f, -5.0f)), MakeDir(Vec4(0.0f, 0.0f, 1.0f)));
