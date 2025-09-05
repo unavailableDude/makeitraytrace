@@ -1,5 +1,8 @@
 #include "Scene.hpp"
 
+#include <vector>
+#include <algorithm>
+
 
 namespace MIRT {
 
@@ -31,6 +34,17 @@ void Scene::SetDefaultCamera() {
 }
 void Scene::SetCamera(const Camera& camera) { _camera = camera; }
 Camera& Scene::GetCamera() { return _camera; }
+
+std::vector<RayHit> Scene::IntersectWorld(const Ray& ray) {
+	std::vector<RayHit> hits = {};
+	for(Sphere& sphere: _spheres) {
+		std::vector<RayHit> sphereHits = sphere.Intersect(ray);
+		hits.insert(hits.end(), sphereHits.begin(), sphereHits.end());
+	}
+
+	std::sort(hits.begin(), hits.end(), [](const RayHit& a, const RayHit& b) { return a.T() < b.T(); });
+	return hits;
+}
 
 
 Sphere GenerateRandom(uint16_t id) {

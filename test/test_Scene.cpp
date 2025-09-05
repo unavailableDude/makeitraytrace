@@ -36,5 +36,17 @@ int main(int argc, char* argv[]) {
 		std::cout << GREEN << "Passed: scene starts with default camera" << RESET << std::endl;
 	else
 		std::cout << RED << "Failed: scene should start with default camera" << RESET << std::endl;
+
+	// add two concentric spheres, one with r = 1, one with r = 0.5
+	// intersecting with ray at (0, 0, -5) in direction (0, 0, 1) should give 4 intersections
+	// at t = 4, 6 for the big sphere and t = 4.5, 5.5 for the small sphere
+	scene.AddSphere(Sphere());
+	scene.AddSphere(Sphere(glm::transpose(glm::scale(glm::identity<glm::mat4>(), glm::vec3(0.5f, 0.5f, 0.5f)))));
+	std::vector<RayHit> hits = scene.IntersectWorld(Ray(Vec4(0.0f, 0.0f, -5.0f, 1.0f), Vec4(0.0f, 0.0f, 1.0f, 0.0f)));
+	if(hits.size() == 4 && hits[0].T() == 4.0f && hits[1].T() == 4.5f && hits[2].T() == 5.5f && hits[3].T() == 6.0f)
+		std::cout << GREEN << "Passed: Scene could be intersected with ray correctly" << RESET << std::endl;
+	else
+		std::cout << RED << "Failed: Scene could not be intersected with ray correctly" << RESET << std::endl;
+
 	return 0;
 }
